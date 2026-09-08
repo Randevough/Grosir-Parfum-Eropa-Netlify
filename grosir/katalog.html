@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Katalog Parfum Grosir - Grosir Parfum Eropa</title>
+<meta name="description" content="Jelajahi varian parfum isi ulang Grosir Parfum Eropa dengan harga grosir langsung. Filter berdasarkan gender, aroma, promo, dan stok.">
+<meta name="color-scheme" content="light">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-page="katalog">
+<a class="skip-link" href="#main">Lompat ke konten utama</a>
+<div id="siteHeader"></div>
+
+<main id="main">
+
+  <section class="phead">
+    <div class="wrap">
+      <nav class="crumb" aria-label="Breadcrumb">
+        <a href="index.html">Beranda</a><span>/</span><span>Katalog</span>
+      </nav>
+      <div class="phead__row">
+        <div>
+          <h1 class="phead__title">Katalog Parfum Grosir</h1>
+          <p class="phead__sub">Seluruh varian tersedia dalam takaran gram (gr). Dapatkan harga grosir langsung transparan untuk kebutuhan usaha maupun pemakaian Anda.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <div class="cat-layout">
+
+      <aside class="filters" id="filters" aria-label="Filter produk"></aside>
+
+      <section>
+        <div class="filters-mobilebar">
+          <div class="searchbox">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg>
+            <input class="input" id="mSearch" type="search" placeholder="Cari parfum..." aria-label="Cari parfum">
+          </div>
+          <button class="btn btn--ghost btn--sm" id="fOpen">
+            <svg class="btn__ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M3 6h18M6 12h12M10 18h4"/></svg>
+            Filter
+          </button>
+        </div>
+
+        <div class="toolbar">
+          <span class="toolbar__count" id="resultCount"></span>
+          <div class="toolbar__right">
+            <div class="cselect" id="sortDropdown" data-name="sort">
+              <button class="cselect__trigger" type="button" aria-haspopup="listbox" aria-expanded="false" aria-label="Urutkan produk" id="sortTrigger">
+                <span class="cselect__label">Rekomendasi</span>
+                <svg class="cselect__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 9l7 7 7-7"/></svg>
+              </button>
+              <ul class="cselect__menu" role="listbox" aria-labelledby="sortTrigger" tabindex="-1">
+                <li class="cselect__option is-selected" role="option" aria-selected="true" data-value="rekomendasi" tabindex="0">
+                  <span>Rekomendasi</span>
+                  <svg class="cselect__check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.5 5.5L20 6.5"/></svg>
+                </li>
+                <li class="cselect__option" role="option" aria-selected="false" data-value="murah" tabindex="0">
+                  <span>Harga terendah</span>
+                  <svg class="cselect__check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.5 5.5L20 6.5"/></svg>
+                </li>
+                <li class="cselect__option" role="option" aria-selected="false" data-value="mahal" tabindex="0">
+                  <span>Harga tertinggi</span>
+                  <svg class="cselect__check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.5 5.5L20 6.5"/></svg>
+                </li>
+                <li class="cselect__option" role="option" aria-selected="false" data-value="nama" tabindex="0">
+                  <span>Nama A - Z</span>
+                  <svg class="cselect__check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.5 5.5L20 6.5"/></svg>
+                </li>
+              </ul>
+              <select class="sr-only" id="sortBy" tabindex="-1" aria-hidden="true">
+                <option value="rekomendasi" selected>Rekomendasi</option>
+                <option value="murah">Harga terendah</option>
+                <option value="mahal">Harga tertinggi</option>
+                <option value="nama">Nama A - Z</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="activefilters" id="activeFilters"></div>
+        <div class="grid-3" id="grid"></div>
+
+        <div class="rulecard mt-40" id="grosir">
+          <div>
+            <h2 class="rulecard__t">Aturan Harga Grosir</h2>
+            <p class="rulecard__d">Semua harga di katalog adalah <b>Harga Grosir langsung</b>. Pembelian pertama mewajibkan akumulasi minimal <b>1 kg (1.000 gr)</b>. Pembelian selanjutnya minimum <b>100 gr</b>. Pembayaran akan diproses dengan aman melalui transfer bank via WhatsApp.</p>
+          </div>
+          <div class="rulecard__nums">
+            <div class="rulenum"><div class="rulenum__v">1 kg</div><div class="rulenum__l">Minimum awal</div></div>
+            <div class="rulenum"><div class="rulenum__v">100 gr</div><div class="rulenum__l">Minimum lanjutan</div></div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+</main>
+
+<div id="siteFooter"></div>
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/main.js"></script>
+</body>
+</html>
