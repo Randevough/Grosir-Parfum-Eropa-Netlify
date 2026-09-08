@@ -239,58 +239,63 @@
       '<stop offset="55%" stop-color="' + c1 + '"/>' +
       '<stop offset="100%" stop-color="' + c2 + '"/>' +
       "</linearGradient>" +
-      // kaca
+      // kaca kristal
       '<linearGradient id="gls-' + uid + '" x1="0" y1="0" x2="1" y2="0.6">' +
       '<stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>' +
-      '<stop offset="42%" stop-color="#F4EEE4" stop-opacity="0.72"/>' +
-      '<stop offset="100%" stop-color="#D9CDBB" stop-opacity="0.55"/>' +
+      '<stop offset="42%" stop-color="#F7F3EB" stop-opacity="0.75"/>' +
+      '<stop offset="100%" stop-color="#E2D8C8" stop-opacity="0.60"/>' +
       "</linearGradient>" +
-      // tutup emas
+      // tutup emas champagne
       '<linearGradient id="cap-' + uid + '" x1="0" y1="0" x2="1" y2="0.8">' +
-      '<stop offset="0%" stop-color="#E7CE9B"/>' +
-      '<stop offset="38%" stop-color="#B98A4B"/>' +
-      '<stop offset="72%" stop-color="#8A6428"/>' +
-      '<stop offset="100%" stop-color="#C69C60"/>' +
+      '<stop offset="0%" stop-color="#EAD9B8"/>' +
+      '<stop offset="35%" stop-color="#C5A059"/>' +
+      '<stop offset="70%" stop-color="#9E7A36"/>' +
+      '<stop offset="100%" stop-color="#B8934A"/>' +
       "</linearGradient>" +
       '<clipPath id="clip-' + uid + '"><path d="' + body + '"/></clipPath>' +
       "</defs>" +
 
       // bayangan lantai
-      '<ellipse cx="60" cy="197" rx="33" ry="5.4" fill="#2B2118" opacity="0.13"/>' +
+      '<ellipse cx="60" cy="197" rx="33" ry="5.4" fill="#141210" opacity="0.14"/>' +
 
       // leher + kerah
       '<rect x="53" y="44" width="14" height="20" fill="url(#gls-' + uid + ')" stroke="#CBBBA3" stroke-width="0.8"/>' +
       '<rect x="46.5" y="56" width="27" height="10" rx="3.5" fill="url(#cap-' + uid + ')"/>' +
 
       // badan kaca
-      '<path d="' + body + '" fill="url(#gls-' + uid + ')" stroke="#C9B99F" stroke-width="1"/>' +
+      '<path d="' + body + '" fill="url(#gls-' + uid + ')" stroke="#C9B99F" stroke-width="1.2"/>' +
 
       // cairan parfum
       '<g clip-path="url(#clip-' + uid + ')">' +
       '<rect x="20" y="' + level + '" width="80" height="100" fill="url(#liq-' + uid + ')"/>' +
       '<ellipse cx="60" cy="' + level + '" rx="40" ry="5" fill="' + shade(c1, 26) + '" opacity="0.85"/>' +
-      '<rect x="20" y="' + (level + 2) + '" width="80" height="7" fill="#ffffff" opacity="0.18"/>' +
-      // pantulan gelap di sisi kanan cairan
-      '<rect x="78" y="' + level + '" width="22" height="100" fill="#2B2118" opacity="0.13"/>' +
+      '<rect x="20" y="' + (level + 2) + '" width="80" height="7" fill="#ffffff" opacity="0.22"/>' +
+      '<rect x="78" y="' + level + '" width="22" height="100" fill="#141210" opacity="0.12"/>' +
+      // dasar kaca tebal (weighted heavy base)
+      '<rect x="20" y="176" width="80" height="18" fill="url(#gls-' + uid + ')" opacity="0.85"/>' +
+      '<line x1="26" y1="176" x2="94" y2="176" stroke="#ffffff" stroke-width="1" opacity="0.5"/>' +
       "</g>" +
 
       // kilau kaca
       '<g clip-path="url(#clip-' + uid + ')">' +
-      '<rect x="35" y="78" width="9" height="100" rx="4.5" fill="#ffffff" opacity="0.42"/>' +
-      '<rect x="48" y="78" width="3.4" height="64" rx="1.7" fill="#ffffff" opacity="0.24"/>' +
-      '<rect x="82" y="70" width="6" height="120" rx="3" fill="#ffffff" opacity="0.16"/>' +
+      '<rect x="34" y="76" width="8" height="102" rx="4" fill="#ffffff" opacity="0.45"/>' +
+      '<rect x="46" y="76" width="3" height="66" rx="1.5" fill="#ffffff" opacity="0.26"/>' +
+      '<rect x="82" y="70" width="6" height="120" rx="3" fill="#ffffff" opacity="0.18"/>' +
       "</g>" +
 
-      // label
-      '<g><rect x="41" y="131" width="38" height="33" rx="7" fill="#FBF7F0" opacity="0.93" stroke="#D9CBB2" stroke-width="0.8"/>' +
-      '<text x="60" y="150" text-anchor="middle" font-family="Georgia, serif" font-size="15" fill="#8A6428">' + initial + "</text>" +
-      '<rect x="49" y="155" width="22" height="1.4" rx="0.7" fill="#B98A4B" opacity="0.55"/></g>' +
+      // label mewah
+      '<g>' +
+      '<rect x="41" y="128" width="38" height="36" rx="6" fill="#FAF8F5" opacity="0.96" stroke="#D8CBBA" stroke-width="0.9"/>' +
+      '<rect x="43" y="130" width="34" height="32" rx="4" fill="none" stroke="#C5A059" stroke-width="0.5" opacity="0.6"/>' +
+      '<text x="60" y="149" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-weight="600" font-size="17" fill="#856127">' + initial + "</text>" +
+      '<text x="60" y="157" text-anchor="middle" font-family="Plus Jakarta Sans, sans-serif" font-size="5" letter-spacing="1" fill="#70675D" font-weight="600">PARFUM</text>' +
+      '</g>' +
 
-      // tutup
+      // tutup champagne gold
       '<rect x="45" y="15" width="30" height="31" rx="' + capRx + '" fill="url(#cap-' + uid + ')"/>' +
-      '<rect x="45" y="37" width="30" height="4" rx="2" fill="#6E4E24" opacity="0.35"/>' +
-      '<rect x="49" y="19" width="5" height="20" rx="2.5" fill="#FFF3DC" opacity="0.45"/>' +
-      '<rect x="54" y="10" width="12" height="6" rx="3" fill="#8A6428"/>' +
+      '<rect x="45" y="37" width="30" height="4" rx="2" fill="#5A4318" opacity="0.30"/>' +
+      '<rect x="48" y="18" width="5" height="22" rx="2.5" fill="#FFF3DC" opacity="0.55"/>' +
+      '<rect x="54" y="10" width="12" height="6" rx="3" fill="#856127"/>' +
       "</svg>"
     );
   }
@@ -353,30 +358,29 @@
       '<div class="footer__grid">' +
       "<div>" +
       '<div class="logo"><span class="logo__mark">' + esc(CONFIG.brand) + '</span></div>' +
-      '<footer class="footer"><div class="wrap">' +
-      '<div class="footer__grid">' +
-      "<div>" +
-      '<div class="logo"><span class="logo__mark">' + esc(CONFIG.brand) + '</span></div>' +
-      '<p class="footer__about">Parfum dengan bibit berkualitas. Melayani pesanan grosir dengan harga langsung transparan sejak ' + esc(CONFIG.sejakTahun) + ".</p>" +
+      '<p class="footer__about">Bibit parfum konsentrat Grade A murni kualitas Eropa. Melayani pesanan grosir transparan sejak ' + esc(CONFIG.sejakTahun) + ".</p>" +
       "</div>" +
-      '<div><div class="footer__h">Jelajahi</div><ul class="footer__list">' +
-      '<li><a href="katalog.html">Semua Parfum</a></li>' +
-      '<li><a href="katalog.html?gender=Pria">Parfum Pria</a></li>' +
-      '<li><a href="katalog.html?gender=Wanita">Parfum Wanita</a></li>' +
-      '<li><a href="katalog.html?gender=Unisex">Parfum Unisex</a></li>' +
+      '<div><div class="footer__h">Koleksi Grosir</div><ul class="footer__list">' +
+      '<li><a href="katalog.html">Semua Varian</a></li>' +
+      '<li><a href="katalog.html?collection=viral">Koleksi Viral</a></li>' +
+      '<li><a href="katalog.html?collection=best">Best Seller</a></li>' +
+      '<li><a href="katalog.html?collection=new">New Arrival</a></li>' +
+      '<li><a href="katalog.html?collection=selection">Signature Selection</a></li>' +
+      '<li><a href="katalog.html?collection=promo">Promo Spesial</a></li>' +
       "</ul></div>" +
-      '<div><div class="footer__h">Bantuan</div><ul class="footer__list">' +
-      '<li><a href="keranjang.html">Keranjang</a></li>' +
+      '<div><div class="footer__h">Bantuan &amp; Mitra</div><ul class="footer__list">' +
+      '<li><a href="keranjang.html">Keranjang Pesanan</a></li>' +
       '<li><a href="katalog.html#grosir">Aturan Grosir</a></li>' +
+      '<li><a href="index.html#marginReseller">Simulasi Margin Reseller</a></li>' +
       '<li><a href="admin.html">Masuk Admin</a></li>' +
       "</ul></div>" +
       '<div><div class="footer__h">Kunjungi Toko</div>' + stores +
-      '<div class="footer__store"><b>WhatsApp</b>' + esc(CONFIG.whatsappLabel) + "<br>" + esc(CONFIG.email) + "</div>" +
+      '<div class="footer__store"><b>WhatsApp Mitra</b>' + esc(CONFIG.whatsappLabel) + "<br>" + esc(CONFIG.email) + "</div>" +
       "</div>" +
       "</div>" +
       '<div class="footer__bar">' +
-      "<span>&copy; " + new Date().getFullYear() + " " + esc(CONFIG.brand) + " " + esc(CONFIG.brandSuffix) + ". Grosir Parfum Eropa</span>" +
-      "<span>Pembayaran transfer bank - detail rekening dikirim admin lewat WhatsApp.</span>" +
+      "<span>&copy; " + new Date().getFullYear() + " " + esc(CONFIG.brand) + " " + esc(CONFIG.brandSuffix) + ". Maison Grosir Parfum Eropa</span>" +
+      "<span>Pembayaran transfer bank aman - konfirmasi pesanan resmi lewat WhatsApp.</span>" +
       "</div>" +
       "</div></footer>"
     );
@@ -847,13 +851,54 @@
     /* Kategori (5 Koleksi Utama) */
     const catWrap = $("#catGrid");
     if (catWrap) {
-      const collections = window.COLLECTION_LIST || [
-        { key: "viral", name: "Viral", desc: "Aroma yang ramai dibicarakan dan jadi tren saat ini.", tint: "#F3E8FF", pick: "kopi-karamel" },
-        { key: "new", name: "New Arrival", desc: "Racikan dan varian aroma terbaru yang baru masuk.", tint: "#FEF3C7", pick: "peach-ceria" },
-        { key: "best", name: "Best Seller", desc: "Paling diminati dengan volume repeat order tertinggi.", tint: "#E0E7FF", pick: "sahara-oud" },
-        { key: "selection", name: "Selection", desc: "Koleksi signature berkarakter mewah dan tahan lama.", tint: "#ECFDF5", pick: "amber-rindu" },
-        { key: "promo", name: "Promo", desc: "Penawaran harga grosir spesial dengan margin maksimal.", tint: "#FEE2E2", pick: "jeruk-bali" }
+      const collections = [
+        {
+          key: "viral",
+          name: "Viral",
+          tagline: "Tren TikTok & Reseller",
+          notes: "Espresso, Salted Caramel & Sea Salt",
+          desc: "Aroma manis gurih dan kesegaran laut yang paling ramai dibicarakan saat ini.",
+          tint: "#F5EEFD",
+          pick: "kopi-karamel"
+        },
+        {
+          key: "new",
+          name: "New Arrival",
+          tagline: "Rilisan Formula 2025",
+          notes: "White Peach, Lychee & Madagascar Vanilla",
+          desc: "Racikan formula parfum terbaru yang baru saja mendarat dari distributor resmi.",
+          tint: "#FEF7E6",
+          pick: "peach-ceria"
+        },
+        {
+          key: "best",
+          name: "Best Seller",
+          tagline: "Repeat Order Tertinggi",
+          notes: "Safron, Taif Rose, Smoky Oud & Melati",
+          desc: "Aroma klasik favorit pelanggan dengan tingkat repeat order tertinggi setiap bulan.",
+          tint: "#FFF8F0",
+          pick: "sahara-oud"
+        },
+        {
+          key: "selection",
+          name: "Selection",
+          tagline: "Signature Konsentrat Mewah",
+          notes: "Amber Resin, Cardamom & Mysore Sandalwood",
+          desc: "Koleksi khusus dengan aroma oriental dan kayu kering tahan lama berkarakter elegan.",
+          tint: "#F1F5F9",
+          pick: "amber-rindu"
+        },
+        {
+          key: "promo",
+          name: "Promo",
+          tagline: "Penawaran Margin Maksimal",
+          notes: "Grapefruit, Damask Rose & White Musk",
+          desc: "Varian bibit parfum berkualitas dengan harga promo grosir terbaik untuk modal awal.",
+          tint: "#FDF2F2",
+          pick: "jeruk-bali"
+        }
       ];
+
       catWrap.innerHTML = collections.map((col, i) => {
         const n = list.filter((p) => p.badge === col.key).length;
         const p = A.findProduct(col.pick) || list[0];
@@ -861,13 +906,17 @@
           '<a class="cat reveal" data-delay="' + i * 80 + '" href="katalog.html?collection=' + encodeURIComponent(col.key) + '"' +
           ' style="--c1:' + col.tint + '">' +
           '<div class="cat__top">' +
-          '<div class="cat__idx">0' + (i + 1) + "</div>" +
-          '<h3 class="cat__name">' + esc(col.name) + "</h3>" +
-          '<p class="cat__desc">' + esc(col.desc) + "</p>" +
-          "</div>" +
-          '<span class="cat__count">' + n + " varian " + ICON.arrow + "</span>" +
-          '<div class="cat__bottle">' + A.renderBottle(p) + "</div>" +
-          "</a>"
+          '<div class="flexrow" style="justify-content:space-between;align-items:center;margin-bottom:8px">' +
+          '<span class="cat__idx">0' + (i + 1) + '</span>' +
+          '<span class="cat__tagline">' + esc(col.tagline) + '</span>' +
+          '</div>' +
+          '<h3 class="cat__name">' + esc(col.name) + '</h3>' +
+          '<p class="cat__desc">' + esc(col.desc) + '</p>' +
+          '<div class="cat__notes">Nota: ' + esc(col.notes) + '</div>' +
+          '</div>' +
+          '<span class="cat__count">' + n + ' varian ' + ICON.arrow + '</span>' +
+          '<div class="cat__bottle">' + A.renderBottle(p) + '</div>' +
+          '</a>'
         );
       }).join("");
     }
