@@ -861,6 +861,165 @@ table { border-collapse: collapse; width: 100%; }
 .promo__act { display: flex; flex-direction: column; gap: 10px; align-items: stretch; }
 .promo__note { font-size: 12px; color: rgba(255,255,255,.8); text-align: center; }
 
+/* ---------- 12b. SOLUSI BISNIS & PAKET USAHA ---------- */
+.biz-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  align-items: stretch;
+}
+.biz-card {
+  position: relative;
+  background: #FFFFFF;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: 32px 28px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--sh-1);
+  transition: transform .25s cubic-bezier(.2,.7,.3,1), box-shadow .25s, border-color .25s;
+}
+.biz-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--sh-2);
+  border-color: #D6CAB6;
+}
+.biz-card--featured {
+  border-color: #C5A059;
+  background: linear-gradient(180deg, #FFFFFF 0%, #FAF6EE 100%);
+  box-shadow: 0 8px 30px rgba(197, 160, 89, 0.12);
+}
+.biz-card--featured:hover {
+  border-color: #B58F48;
+  box-shadow: 0 12px 36px rgba(197, 160, 89, 0.22);
+}
+.biz-card__ribbon {
+  position: absolute;
+  top: -12px;
+  right: 24px;
+  background: linear-gradient(135deg, #C5A059 0%, #A8823B 100%);
+  color: #FFFFFF;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border-radius: 100px;
+  box-shadow: 0 2px 8px rgba(168, 130, 59, 0.35);
+}
+.biz-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.biz-card__icon-box {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: var(--cream);
+  border: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--espresso);
+  transition: transform .2s ease;
+}
+.biz-card:hover .biz-card__icon-box {
+  transform: scale(1.06);
+}
+.biz-card__icon-box svg {
+  width: 22px;
+  height: 22px;
+}
+.biz-card__icon-box--gold {
+  background: var(--gold-soft);
+  border-color: #E2CFA8;
+  color: var(--gold-ink);
+}
+.biz-card__tag {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.biz-card__tag--gold {
+  color: var(--gold-ink);
+}
+.biz-card__title {
+  font-size: 21px;
+  font-family: var(--f-display);
+  font-weight: 600;
+  color: var(--espresso);
+  margin-bottom: 10px;
+  line-height: 1.25;
+}
+.biz-card__desc {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.55;
+  margin-bottom: 22px;
+}
+.biz-card__specs {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+}
+.biz-card__specs li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13.5px;
+  color: var(--charcoal);
+  line-height: 1.45;
+}
+.biz-card__check {
+  width: 17px;
+  height: 17px;
+  flex: none;
+  color: #4A6B53;
+  margin-top: 1px;
+}
+.biz-card__check--gold {
+  color: var(--gold-ink);
+}
+.biz-card__footer {
+  padding-top: 18px;
+  border-top: 1px solid var(--line-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.biz-card__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.biz-card__meta-label {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.biz-card__meta-val {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--espresso);
+}
+.biz-card__meta-val--gold {
+  color: var(--gold-ink);
+}
+.biz-card__btn {
+  width: 100%;
+  justify-content: center;
+}
+
 /* ---------- 13. KEUNGGULAN ---------- */
 .feats {
   display: grid; grid-template-columns: repeat(4, 1fr);
@@ -1754,6 +1913,7 @@ table { border-collapse: collapse; width: 100%; }
   .adnav { position: static; display: flex; overflow-x: auto; gap: 6px; padding-bottom: 4px; }
   .adnav__btn { white-space: nowrap; }
   .kpis { grid-template-columns: repeat(2, 1fr); }
+  .biz-grid { gap: 18px; }
   .footer__grid { grid-template-columns: 1fr 1fr; gap: 32px; }
 }
 
@@ -1775,6 +1935,7 @@ table { border-collapse: collapse; width: 100%; }
   .sec-head { flex-direction: column; align-items: flex-start; gap: 16px; margin-bottom: 28px; }
   .cats { grid-template-columns: 1fr; }
   .cats .cat:nth-child(n) { grid-column: span 1; }
+  .biz-grid { grid-template-columns: 1fr; gap: 20px; }
   .grid-3 { grid-template-columns: 1fr; }
   .tiers { grid-template-columns: 1fr; }
   .benefit-grid { grid-template-columns: 1fr; }
@@ -1803,6 +1964,8 @@ table { border-collapse: collapse; width: 100%; }
   .hero__blend-card { left: 4px; bottom: -16px; min-width: 0; max-width: calc(100% - 8px); padding: 12px 14px; }
   .hero__cta .btn { flex: 1; }
   .grid-4, .grid-2 { grid-template-columns: 1fr; }
+  .biz-card { padding: 24px 20px; }
+  .biz-card__title { font-size: 19px; }
   .feats { grid-template-columns: 1fr; }
   .feat { border-right: 0; border-bottom: 1px solid var(--line-soft); }
   .feat:last-child { border-bottom: 0; }
