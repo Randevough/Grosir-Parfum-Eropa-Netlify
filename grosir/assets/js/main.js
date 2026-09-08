@@ -504,13 +504,21 @@
     const L = [];
     L.push("Halo " + CONFIG.brand + ", saya mau pesan grosir:");
     L.push("");
+    let totalSavings = 0;
     rows.forEach((r, i) => {
       const grUnit = r.size.gr || r.size.ml;
+      const normalPrice = r.size.grosir || r.unit;
+      if (r.size.promoPrice != null && r.size.promoPrice < normalPrice) {
+        totalSavings += (normalPrice - r.size.promoPrice) * r.item.qty;
+      }
       L.push((i + 1) + ". " + r.product.name + " - " + grUnit + " gr x" + r.item.qty + " = " + rp(r.unit * r.item.qty));
     });
     L.push("");
     L.push("Tipe harga  : GROSIR");
     L.push("Total barang: " + Cart.count() + " botol (" + gr(st.total) + ")");
+    if (totalSavings > 0) {
+      L.push("Hemat Promo : -" + rp(totalSavings));
+    }
     L.push("Subtotal    : " + rp(Cart.subtotal()));
     if (extra) { L.push(""); L.push(extra); }
     L.push("");
@@ -522,7 +530,9 @@
   function productCardHTML(p) {
     const inStock = p.sizes.some((s) => s.stock);
     const pool = inStock ? p.sizes.filter((s) => s.stock) : p.sizes;
-    const main = Math.min.apply(null, pool.map((s) => priceOf(s)));
+    const minSize = pool.reduce((best, s) => priceOf(s) < priceOf(best) ? s : best, pool[0] || { ml: 50, grosir: 0 });
+    const main = priceOf(minSize);
+    const hasPromo = minSize && minSize.promoPrice != null && minSize.promoPrice < minSize.grosir;
     const grs = p.sizes.map((s) => (s.gr || s.ml)).join(" / ") + " gr";
 
     let ribbon = "";
@@ -532,6 +542,14 @@
     else if (p.badge === "best") ribbon = '<span class="card__ribbon card__ribbon--best">Best Seller</span>';
     else if (p.badge === "new") ribbon = '<span class="card__ribbon card__ribbon--new">Baru</span>';
     else if (p.badge === "selection") ribbon = '<span class="card__ribbon card__ribbon--selection">Selection</span>';
+
+    const priceHTML = hasPromo ?
+      '<div class="card__price-row">' +
+      '<span class="card__price--strike">' + rp(minSize.grosir) + '</span>' +
+      '<span class="card__price">' + rp(main) + '</span>' +
+      '<span class="card__discount-tag">-' + Math.round(((minSize.grosir - minSize.promoPrice) / minSize.grosir) * 100) + '%</span>' +
+      '</div>' :
+      '<div class="card__price">' + rp(main) + '</div>';
 
     return (
       '<a class="card' + (inStock ? "" : " is-out") + '" href="produk.html?id=' + encodeURIComponent(p.id) + '"' +
@@ -550,7 +568,7 @@
       '<div class="card__foot">' +
       '<div class="card__pricewrap">' +
       '<div class="card__pricelabel">Harga Grosir <span class="card__from">mulai</span></div>' +
-      '<div class="card__price">' + rp(main) + "</div>" +
+      priceHTML +
       "</div>" +
       '<span class="status status--' + (inStock ? "in" : "out") + '">' + (inStock ? "Tersedia" : "Sold out") + "</span>" +
       "</div>" +
@@ -1091,6 +1109,58 @@
     paint();
   };
 
+  /* ============ OLFACTORY ACCORDS (FRAGRANTICA STYLE) ============ */
+  function autoAccords(p) {
+    if (p.accords && p.accords.length) return p.accords;
+    const txt = ((p.notes ? [p.notes.top, p.notes.middle, p.notes.base].join(" ") : "") + " " + (p.aroma || "") + " " + (p.desc || "")).toLowerCase();
+    const rules = [
+      { key: "woody", kw: ["oud", "kayu", "cendana", "cedarwood", "driftwood", "woody"], score: 95 },
+      { key: "citrus", kw: ["jeruk", "bergamot", "pomelo", "grapefruit", "lemon", "lime", "citrus"], score: 85 },
+      { key: "floral", kw: ["mawar", "melati", "bunga", "neroli", "freesia", "peony", "floral", "rose"], score: 80 },
+      { key: "sweet", kw: ["karamel", "vanila", "tonka", "hazelnut", "manis", "sweet"], score: 75 },
+      { key: "fresh spicy", kw: ["lada", "kapulaga", "kayu manis", "pala", "spicy", "mint"], score: 70 },
+      { key: "aquatic", kw: ["laut", "garam", "air", "aquatic", "fresh"], score: 70 },
+      { key: "earthy", kw: ["petrichor", "tanah", "vetiver", "hujan", "mossy"], score: 65 },
+      { key: "amber", kw: ["amber", "labdanum", "benzoin", "resin"], score: 65 },
+      { key: "musky", kw: ["musk", "cashmeran", "putih"], score: 60 }
+    ];
+    const found = [];
+    rules.forEach((r) => {
+      if (r.kw.some((w) => txt.includes(w))) found.push({ name: r.key, score: r.score });
+    });
+    if (!found.length) {
+      found.push({ name: "woody", score: 90 }, { name: "aromatic", score: 75 }, { name: "musky", score: 60 });
+    }
+    return found.slice(0, 6);
+  }
+
+  function renderMainAccords(p) {
+    const list = autoAccords(p);
+    if (!list || !list.length) return "";
+    const maxScore = Math.max.apply(null, list.map((a) => a.score || 0)) || 100;
+    const rows = list.map((a) => {
+      const key = a.name.toLowerCase().trim();
+      const cfg = (window.ACCORD_COLORS && window.ACCORD_COLORS[key]) || { bg: "#7D4B2A", color: "#FFFFFF" };
+      const pct = Math.max(34, Math.min(100, Math.round(((a.score || 0) / maxScore) * 100)));
+      return (
+        '<div class="accord-row">' +
+        '<div class="accord-bar" style="width:' + pct + '%;background:' + cfg.bg + ';color:' + cfg.color + '">' +
+        '<span class="accord-bar__name">' + esc(a.name) + "</span>" +
+        "</div></div>"
+      );
+    }).join("");
+
+    return (
+      '<div class="accords-box">' +
+      '<div class="accords-box__header">' +
+      '<h3 class="accords-box__title">Main Accords</h3>' +
+      '<span class="accords-box__hint">Karakter Olfactory</span>' +
+      "</div>" +
+      '<div class="accords-box__list">' + rows + "</div>" +
+      "</div>"
+    );
+  }
+
   /* ============ DETAIL PRODUK ============ */
   PAGES.produk = function () {
     const root = $("#pdpRoot");
@@ -1116,6 +1186,7 @@
         const grUnit = s.gr || s.ml;
         const on = (s.ml === sel.ml);
         const price = A.priceOf(s);
+        const isPromo = (s.promoPrice != null && s.promoPrice < s.grosir);
         return (
           '<button class="size' + (on ? " is-on" : "") + (s.stock ? "" : " is-out") + '"' +
           ' data-ml="' + s.ml + '"' + (s.stock ? "" : " disabled") +
@@ -1124,7 +1195,11 @@
           '<div class="size__st"><span class="status status--' + (s.stock ? "in" : "out") + '">' +
           (s.stock ? "Tersedia" : "Sold out") + "</span></div></div>" +
           '<div class="size__right"><div class="size__price">' + rp(price) + "</div>" +
-          '<div class="size__alt">Grosir</div></div>' +
+          (isPromo ?
+            '<div class="size__promo"><span class="size__promo-strike">' + rp(s.grosir) + '</span><span class="size__promo-badge">PROMO</span></div>' :
+            '<div class="size__alt">Grosir</div>'
+          ) +
+          "</div>" +
           "</button>"
         );
       }).join("");
@@ -1133,15 +1208,23 @@
     function priceboxHTML() {
       const grUnit = sel.gr || sel.ml;
       const price = A.priceOf(sel);
+      const isPromo = (sel.promoPrice != null && sel.promoPrice < sel.grosir);
+      const diff = isPromo ? (sel.grosir - sel.promoPrice) : 0;
+      const pct = isPromo ? Math.round((diff / sel.grosir) * 100) : 0;
       const st = A.grosirStatus();
 
       return (
         '<div class="pricebox__row">' +
         "<div>" +
-        '<div class="pricebox__lbl">Harga Grosir - ' + grUnit + " gr</div>" +
+        '<div class="pricebox__lbl">' + (isPromo ? "Harga Promo Grosir" : "Harga Grosir") + " - " + grUnit + " gr</div>" +
+        '<div class="pricebox__price-group">' +
         '<div class="pricebox__val">' + rp(price) + "</div>" +
+        (isPromo ? '<div class="pricebox__strike">' + rp(sel.grosir) + "</div>" : "") +
         "</div>" +
-        (p.badge === "promo" ? '<span class="chip chip--promo">Harga Promo</span>' : "") +
+        "</div>" +
+        (isPromo ? '<span class="pricebox__save-badge">Hemat ' + rp(diff) + ' (' + pct + '%)</span>' :
+          (p.badge === "promo" ? '<span class="chip chip--promo">Harga Promo</span>' : "")
+        ) +
         "</div>" +
         '<div class="pricebox__actions">' +
         '<div class="stepper">' +
@@ -1162,22 +1245,28 @@
       );
     }
 
+    const colObj = (window.COLLECTION_LIST || []).find((c) => c.key === p.badge) || { name: p.aroma || "Grosir" };
+
     root.innerHTML =
       '<div class="wrap">' +
-      '<nav class="crumb" aria-label="Breadcrumb" style="padding-top:26px">' +
-      '<a href="index.html">Beranda</a><span>/</span>' +
-      '<a href="katalog.html">Katalog</a><span>/</span>' +
-      '<a href="katalog.html?gender=' + encodeURIComponent(p.gender) + '">' + esc(p.gender) + "</a><span>/</span>" +
-      "<span>" + esc(p.name) + "</span>" +
-      "</nav>" +
+      '<div class="pdp__topbar">' +
+      '<a class="pdp__back" href="katalog.html">' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>' +
+      "<span>Kembali ke Katalog</span>" +
+      "</a>" +
+      '<div class="pdp__topbar-cat">' +
+      "<span>Koleksi: " + esc(colObj.name) + "</span>" +
+      "</div>" +
+      "</div>" +
       '<div class="pdp">' +
       '<div class="pdp__visual reveal" style="--stage-a:' + p.colors[0] + '38">' +
       '<div class="pdp__stage"><div class="pdp__bottle float">' + A.renderBottle(p) + "</div></div>" +
       '<div class="pdp__swatches"><span>Warna cairan</span>' +
       '<span class="swatch" style="background:' + p.colors[0] + '"></span>' +
       '<span class="swatch" style="background:' + p.colors[1] + '"></span>' +
-      '<span class="spacer"></span><span>Botol kaca bening + spray</span>' +
+      '<span class="spacer"></span><span>Botol kaca bening</span>' +
       "</div>" +
+      renderMainAccords(p) +
       "</div>" +
       '<div class="pdp__info reveal" data-delay="90">' +
       '<div class="pdp__brand">' + esc(p.brand) + "</div>" +
@@ -1675,15 +1764,26 @@
       };
     }
 
-    function sizeEditHTML(grVal, grosir, stock) {
+    function sizeEditHTML(grVal, grosir, stock, promoPrice) {
       return (
         '<div class="sizeedit">' +
         '<div class="sizeedit__ml"><div class="sizeedit__lbl">Ukuran (gr)</div><input class="input" type="number" min="1" placeholder="gr" data-k="ml" value="' + (grVal !== undefined && grVal !== null ? grVal : "") + '"></div>' +
-        '<div><div class="sizeedit__lbl">Harga Grosir (Rp)</div><input class="input" type="number" min="0" step="1000" data-k="grosir" value="' + (grosir !== undefined && grosir !== null ? grosir : "") + '"></div>' +
+        '<div><div class="sizeedit__lbl">Harga Normal (Rp)</div><input class="input" type="number" min="0" step="1000" data-k="grosir" value="' + (grosir !== undefined && grosir !== null ? grosir : "") + '"></div>' +
+        '<div><div class="sizeedit__lbl">Harga Promo (Rp)</div><input class="input" type="number" min="0" step="1000" data-k="promo" placeholder="Opsional" value="' + (promoPrice !== undefined && promoPrice !== null ? promoPrice : "") + '"></div>' +
         '<div><div class="sizeedit__lbl">Tersedia</div><label class="switch"><input type="checkbox" data-k="stock"' + (stock ? " checked" : "") + '><span class="switch__track"></span></label></div>' +
         '<div><button type="button" class="sizeedit__del" data-act="del-size" title="Hapus ukuran">' + ICON.trash + '</button></div>' +
         '</div>'
       );
+    }
+
+    function parseAccordsInput(val) {
+      if (!val || !val.trim()) return null;
+      return val.split(",").map((part) => {
+        const segs = part.split(":");
+        const name = (segs[0] || "").trim().toLowerCase();
+        const score = parseInt(segs[1] || 80, 10) || 80;
+        return name ? { name: name, score: Math.min(100, Math.max(10, score)) } : null;
+      }).filter(Boolean);
     }
 
     function bindSizeActions(containerId, addBtnId) {
@@ -1704,7 +1804,7 @@
       if (addBtn && cont) {
         addBtn.onclick = () => {
           const wrapper = document.createElement("div");
-          wrapper.innerHTML = sizeEditHTML("", "", true);
+          wrapper.innerHTML = sizeEditHTML("", "", true, "");
           cont.appendChild(wrapper.firstElementChild);
         };
       }
@@ -1720,13 +1820,37 @@
         '<div class="field"><label class="label" for="paBadge">Badge Koleksi / Promo</label><select class="select" id="paBadge"><option value="">None (Standar)</option><option value="viral">Viral</option><option value="new">New Arrival</option><option value="best">Best Seller</option><option value="selection">Selection</option><option value="promo">Promo (Harga Spesial)</option></select></div>' +
         '<div class="field"><label class="label" for="paDesc">Deskripsi</label><textarea class="textarea" id="paDesc" rows="3" placeholder="Deskripsi aroma dan karakter parfum..."></textarea></div>' +
         '<div class="form-3"><div class="field"><label class="label" for="paTop">Top Notes</label><input class="input" id="paTop" placeholder="Bergamot"></div><div class="field"><label class="label" for="paMid">Middle Notes</label><input class="input" id="paMid" placeholder="Rose"></div><div class="field"><label class="label" for="paBase">Base Notes</label><input class="input" id="paBase" placeholder="Musk"></div></div>' +
-        '<div class="pdp__blockh" style="margin:14px 0 6px"><span>Ukuran (gr) &amp; Harga Grosir</span></div>' +
+        '<div class="field">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">' +
+        '<label class="label" style="margin-bottom:0" for="paAccords">Main Accords (Olfactory Profile)</label>' +
+        '<button type="button" class="btn btn--ghost btn--sm" id="paAutoAccords" style="padding:4px 10px;font-size:11.5px">' +
+        '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>' +
+        'Auto-Generate dari Notes' +
+        '</button>' +
+        '</div>' +
+        '<input class="input" id="paAccords" placeholder="Contoh: woody: 100, warm spicy: 82, amber: 70, oud: 62">' +
+        '</div>' +
+        '<div class="pdp__blockh" style="margin:14px 0 6px"><span>Ukuran (gr), Harga Normal &amp; Harga Promo</span></div>' +
         '<div id="paSizesContainer">' +
-        [35, 50, 100].map((grVal) => sizeEditHTML(grVal, grVal * 800, true)).join("") +
+        [35, 50, 100].map((grVal) => sizeEditHTML(grVal, grVal * 800, true, "")).join("") +
         '</div><button type="button" class="btn btn--ghost btn--sm mt-16" id="paAddSize">+ Tambah Ukuran</button>';
 
       prepareModal(modal);
       bindSizeActions("paSizesContainer", "paAddSize");
+
+      const autoBtn = $("#paAutoAccords");
+      if (autoBtn) {
+        autoBtn.onclick = () => {
+          const dummy = {
+            notes: { top: $("#paTop").value, middle: $("#paMid").value, base: $("#paBase").value },
+            aroma: $("#paAroma").value,
+            desc: $("#paDesc").value
+          };
+          const gen = autoAccords(dummy);
+          $("#paAccords").value = gen.map((g) => g.name + ": " + g.score).join(", ");
+          A.toast("Accords berhasil digenerate dari notes", "ok");
+        };
+      }
 
       $("#pmSave").onclick = () => {
         const name = $("#paName").value.trim();
@@ -1738,21 +1862,29 @@
         $$("#paSizesContainer .sizeedit").forEach((row) => {
           const inpMl = row.querySelector('[data-k="ml"]');
           const inpGrosir = row.querySelector('[data-k="grosir"]');
+          const inpPromo = row.querySelector('[data-k="promo"]');
           const inpStock = row.querySelector('[data-k="stock"]');
           const mlVal = Number(inpMl.value);
           if (mlVal > 0) {
             const grosirPrice = Number(inpGrosir.value) || 0;
-            newSizes.push({
+            const promoVal = Number(inpPromo ? inpPromo.value : 0);
+            const sizeObj = {
               ml: mlVal,
               price: grosirPrice,
               grosir: grosirPrice,
               stock: inpStock ? inpStock.checked : true
-            });
+            };
+            if (promoVal > 0 && promoVal < grosirPrice) {
+              sizeObj.promoPrice = promoVal;
+            }
+            newSizes.push(sizeObj);
           }
         });
         if (!newSizes.length) {
           newSizes.push({ ml: 50, price: 35000, grosir: 35000, stock: true });
         }
+
+        const customAccords = parseAccordsInput($("#paAccords").value);
 
         const newProd = {
           id: "custom-" + Date.now(),
@@ -1768,6 +1900,7 @@
             middle: $("#paMid").value.trim() || "Jasmine, Floral",
             base: $("#paBase").value.trim() || "Musk, Amber"
           },
+          accords: customAccords || undefined,
           sizes: newSizes
         };
 
@@ -1789,6 +1922,8 @@
       const modal = $("#pModal");
       $("#pmSave").textContent = "Simpan Perubahan";
       $("#pmTitle").textContent = "Ubah: " + p.name;
+      const curAccords = (p.accords || autoAccords(p)).map((a) => a.name + ": " + a.score).join(", ");
+
       $("#pmBody").innerHTML = uploadField() +
         '<div class="field"><label class="label" for="pmName">Nama produk</label>' +
         '<input class="input" id="pmName" value="' + esc(p.name) + '"></div>' +
@@ -1810,29 +1945,60 @@
         '<option value="selection"' + (p.badge === "selection" ? " selected" : "") + '>Selection</option>' +
         '<option value="promo"' + (p.badge === "promo" ? " selected" : "") + '>Promo (Harga Spesial)</option>' +
         '</select></div>' +
-        '<div class="pdp__blockh" style="margin:14px 0 6px"><span>Harga grosir &amp; stok per ukuran (gr)</span></div>' +
+        '<div class="form-3"><div class="field"><label class="label" for="pmTop">Top Notes</label><input class="input" id="pmTop" value="' + esc(p.notes ? p.notes.top : "") + '"></div><div class="field"><label class="label" for="pmMid">Middle Notes</label><input class="input" id="pmMid" value="' + esc(p.notes ? p.notes.middle : "") + '"></div><div class="field"><label class="label" for="pmBase">Base Notes</label><input class="input" id="pmBase" value="' + esc(p.notes ? p.notes.base : "") + '"></div></div>' +
+        '<div class="field">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">' +
+        '<label class="label" style="margin-bottom:0" for="pmAccords">Main Accords (Olfactory Profile)</label>' +
+        '<button type="button" class="btn btn--ghost btn--sm" id="pmAutoAccords" style="padding:4px 10px;font-size:11.5px">' +
+        '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>' +
+        'Auto-Generate dari Notes' +
+        '</button>' +
+        '</div>' +
+        '<input class="input" id="pmAccords" value="' + esc(curAccords) + '">' +
+        '</div>' +
+        '<div class="pdp__blockh" style="margin:14px 0 6px"><span>Harga normal, harga promo &amp; stok per ukuran (gr)</span></div>' +
         '<div id="pmSizesContainer">' +
-        p.sizes.map((s) => sizeEditHTML(s.gr || s.ml, s.grosir, s.stock)).join("") +
+        p.sizes.map((s) => sizeEditHTML(s.gr || s.ml, s.grosir, s.stock, s.promoPrice)).join("") +
         '</div><button type="button" class="btn btn--ghost btn--sm mt-16" id="pmAddSize">+ Tambah Ukuran</button>';
 
       prepareModal(modal);
       bindSizeActions("pmSizesContainer", "pmAddSize");
+
+      const autoBtn = $("#pmAutoAccords");
+      if (autoBtn) {
+        autoBtn.onclick = () => {
+          const dummy = {
+            notes: { top: $("#pmTop").value, middle: $("#pmMid").value, base: $("#pmBase").value },
+            aroma: $("#pmAroma").value,
+            desc: p.desc
+          };
+          const gen = autoAccords(dummy);
+          $("#pmAccords").value = gen.map((g) => g.name + ": " + g.score).join(", ");
+          A.toast("Accords berhasil digenerate dari notes", "ok");
+        };
+      }
 
       $("#pmSave").onclick = () => {
         const newSizes = [];
         $$("#pmSizesContainer .sizeedit").forEach((row) => {
           const inpMl = row.querySelector('[data-k="ml"]');
           const inpGrosir = row.querySelector('[data-k="grosir"]');
+          const inpPromo = row.querySelector('[data-k="promo"]');
           const inpStock = row.querySelector('[data-k="stock"]');
           const mlVal = Number(inpMl.value);
           if (mlVal > 0) {
             const grosirPrice = Number(inpGrosir.value) || 0;
-            newSizes.push({
+            const promoVal = Number(inpPromo ? inpPromo.value : 0);
+            const sizeObj = {
               ml: mlVal,
               price: grosirPrice,
               grosir: grosirPrice,
               stock: inpStock ? inpStock.checked : true
-            });
+            };
+            if (promoVal > 0 && promoVal < grosirPrice) {
+              sizeObj.promoPrice = promoVal;
+            }
+            newSizes.push(sizeObj);
           }
         });
 
@@ -1841,6 +2007,8 @@
           return;
         }
 
+        const customAccords = parseAccordsInput($("#pmAccords").value);
+
         const over = A.getOverride();
         over.patch = over.patch || {};
         over.patch[p.id] = Object.assign({}, over.patch[p.id] || {}, {
@@ -1848,6 +2016,12 @@
           gender: $("#pmGender").value,
           aroma: $("#pmAroma").value,
           badge: $("#pmBadge").value || "",
+          notes: {
+            top: $("#pmTop") ? $("#pmTop").value : (p.notes ? p.notes.top : ""),
+            middle: $("#pmMid") ? $("#pmMid").value : (p.notes ? p.notes.middle : ""),
+            base: $("#pmBase") ? $("#pmBase").value : (p.notes ? p.notes.base : "")
+          },
+          accords: customAccords || undefined,
           sizes: newSizes
         });
         A.saveOverride(over);
