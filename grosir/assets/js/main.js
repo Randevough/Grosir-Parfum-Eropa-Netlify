@@ -881,12 +881,24 @@
   PAGES.beranda = function () {
     const list = A.products();
 
-    /* Hero: 3 botol dengan warna berbeda */
-    const heroPicks = ["melati-senja", "sahara-oud", "laut-pagi"]
-      .map((id) => A.findProduct(id))
-      .filter(Boolean);
-    const slots = [$("#heroB"), $("#heroA"), $("#heroC")];
-    heroPicks.forEach((p, i) => { if (slots[i]) slots[i].innerHTML = A.renderBottle(p); });
+    /* Hero: Featured Blend live card */
+    const featured = A.findProduct("sahara-oud") || list[0];
+    const blendTitle = $("#heroBlendTitle");
+    const blendPrice = $("#heroBlendPrice");
+    const blendAccords = $("#heroBlendAccords");
+    const blendCard = $("#heroBlendCard");
+    if (featured && blendCard) {
+      blendCard.href = "produk.html?id=" + encodeURIComponent(featured.id);
+      if (blendTitle) blendTitle.textContent = featured.name;
+      const minSz = (featured.sizes || []).reduce((best, s) => A.priceOf(s, featured) < A.priceOf(best, featured) ? s : best, featured.sizes[0] || { ml: 50, grosir: 45000 });
+      if (blendPrice) blendPrice.innerHTML = "Mulai " + rp(A.priceOf(minSz, featured)) + " <small>/ " + (minSz.gr || minSz.ml) + " gr</small>";
+      if (blendAccords && featured.accords) {
+        blendAccords.innerHTML = featured.accords.slice(0, 3).map((a) => {
+          const cfg = (window.ACCORD_COLORS && window.ACCORD_COLORS[a.name.toLowerCase().trim()]) || { bg: "#7D4B2A", color: "#FFFFFF" };
+          return '<span class="hero__blend-acc" style="background:' + cfg.bg + ';color:' + cfg.color + '">' + esc(a.name) + " " + a.score + "%</span>";
+        }).join("");
+      }
+    }
 
     /* Kategori (5 Koleksi Utama) */
     const catWrap = $("#catGrid");
