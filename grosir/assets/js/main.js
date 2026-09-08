@@ -113,10 +113,24 @@
   function saveOverride(o) { Store.set(K.over, o); }
   function getOverride() { return Store.get(K.over, { patch: {}, added: [], deleted: [] }); }
 
+  function getBadges(p) {
+    if (!p) return [];
+    if (Array.isArray(p.badges) && p.badges.length) return p.badges;
+    if (p.badge) return [p.badge];
+    return [];
+  }
+  function hasBadge(p, b) {
+    return getBadges(p).includes(b);
+  }
+
   /* ---------- 4. MODE HARGA: GROSIR (Harga tunggal) ---------- */
   function getMode() { return "grosir"; }
   function setMode() { /* Mode grosir permanen */ }
-  const priceOf = (size) => ((size && (size.promoPrice != null ? size.promoPrice : size.grosir)) || 0);
+  const priceOf = (size, p) => {
+    if (!size) return 0;
+    if (p && !hasBadge(p, "promo")) return size.grosir || 0;
+    return (size.promoPrice != null && size.promoPrice < size.grosir ? size.promoPrice : size.grosir) || 0;
+  };
 
   /* ---------- 5. KERANJANG ---------- */
   const Cart = {
@@ -427,7 +441,7 @@
       '<div class="citem__thumb">' + renderBottle(r.product) + "</div>" +
       '<div class="citem__main">' +
       '<div class="citem__name">' + esc(r.product.name) + "</div>" +
-      '<div class="citem__sub">' + grUnit + " gr &bull; " + esc(r.product.aroma) + " &bull; Harga grosir</div>" +
+      '<div class="citem__sub">' + grUnit + " gr &bull; " + esc(r.product.gender) + " &bull; Harga grosir</div>" +
       '<div class="citem__row">' +
       '<div class="stepper">' +
       '<button data-act="dec" data-id="' + r.product.id + '" data-ml="' + grUnit + '" aria-label="Kurangi jumlah">' + ICON.minus + "</button>" +
@@ -455,7 +469,7 @@
       body.innerHTML =
         '<div class="empty"><div class="empty__ico">' + ICON.bag + "</div>" +
         '<div class="empty__title">Keranjang masih kosong</div>' +
-        '<p class="empty__text">Pilih aroma favoritmu dulu. Semua harga grosir kami tampilkan transparan.</p>' +
+        '<p class="empty__text">Pilih parfum favoritmu dulu. Semua harga grosir kami tampilkan transparan.</p>' +
         '<a class="btn btn--primary" href="katalog.html">Lihat Katalog</a></div>';
       foot.innerHTML = "";
       return;
@@ -530,18 +544,19 @@
   function productCardHTML(p) {
     const inStock = p.sizes.some((s) => s.stock);
     const pool = inStock ? p.sizes.filter((s) => s.stock) : p.sizes;
-    const minSize = pool.reduce((best, s) => priceOf(s) < priceOf(best) ? s : best, pool[0] || { ml: 50, grosir: 0 });
-    const main = priceOf(minSize);
-    const hasPromo = minSize && minSize.promoPrice != null && minSize.promoPrice < minSize.grosir;
+    const minSize = pool.reduce((best, s) => priceOf(s, p) < priceOf(best, p) ? s : best, pool[0] || { ml: 50, grosir: 0 });
+    const main = priceOf(minSize, p);
+    const hasPromo = hasBadge(p, "promo") && minSize && minSize.promoPrice != null && minSize.promoPrice < minSize.grosir;
     const grs = p.sizes.map((s) => (s.gr || s.ml)).join(" / ") + " gr";
+    const bList = getBadges(p);
 
     let ribbon = "";
     if (!inStock) ribbon = '<span class="card__ribbon card__ribbon--out">Sold out</span>';
-    else if (p.badge === "promo") ribbon = '<span class="card__ribbon card__ribbon--promo">Promo</span>';
-    else if (p.badge === "viral") ribbon = '<span class="card__ribbon card__ribbon--viral">Viral</span>';
-    else if (p.badge === "best") ribbon = '<span class="card__ribbon card__ribbon--best">Best Seller</span>';
-    else if (p.badge === "new") ribbon = '<span class="card__ribbon card__ribbon--new">Baru</span>';
-    else if (p.badge === "selection") ribbon = '<span class="card__ribbon card__ribbon--selection">Selection</span>';
+    else if (hasBadge(p, "promo")) ribbon = '<span class="card__ribbon card__ribbon--promo">Promo</span>';
+    else if (hasBadge(p, "viral")) ribbon = '<span class="card__ribbon card__ribbon--viral">Viral</span>';
+    else if (hasBadge(p, "best")) ribbon = '<span class="card__ribbon card__ribbon--best">Best Seller</span>';
+    else if (hasBadge(p, "new")) ribbon = '<span class="card__ribbon card__ribbon--new">Baru</span>';
+    else if (hasBadge(p, "selection")) ribbon = '<span class="card__ribbon card__ribbon--selection">Selection</span>';
 
     const priceHTML = hasPromo ?
       '<div class="card__price-row">' +
@@ -550,6 +565,12 @@
       '<span class="card__discount-tag">-' + Math.round(((minSize.grosir - minSize.promoPrice) / minSize.grosir) * 100) + '%</span>' +
       '</div>' :
       '<div class="card__price">' + rp(main) + '</div>';
+
+    const tagChips = bList.map((b) => {
+      const col = (window.COLLECTION_LIST || []).find((c) => c.key === b);
+      const name = col ? col.name : b;
+      return '<span class="chip' + (b === 'promo' ? ' chip--promo' : '') + '">' + esc(name) + '</span>';
+    }).join("");
 
     return (
       '<a class="card' + (inStock ? "" : " is-out") + '" href="produk.html?id=' + encodeURIComponent(p.id) + '"' +
@@ -561,8 +582,7 @@
       '<h3 class="card__name">' + esc(p.name) + "</h3>" +
       '<div class="card__meta">' +
       '<span class="chip">' + esc(p.gender) + "</span>" +
-      '<span class="chip">' + esc(p.aroma) + "</span>" +
-      (p.badge === "promo" ? '<span class="chip chip--promo">Promo</span>' : "") +
+      tagChips +
       '<span class="chip chip--plain chip--sizes">' + grs + "</span>" +
       "</div>" +
       '<div class="card__foot">' +
@@ -761,6 +781,7 @@
     $: $, $$: $$, rp: rp, gr: gr, esc: esc, param: param, shade: shade, hash: hash,
     Store: Store, K: K, ICON: ICON,
     products: products, findProduct: findProduct, getOverride: getOverride, saveOverride: saveOverride,
+    getBadges: getBadges, hasBadge: hasBadge,
     getMode: getMode, setMode: setMode, priceOf: priceOf,
     Cart: Cart, grosirStatus: grosirStatus, waLink: waLink,
     renderBottle: renderBottle, productCardHTML: productCardHTML,
@@ -849,8 +870,9 @@
    =========================================================== */
 (function () {
   "use strict";
+  const CONFIG = window.CONFIG;
   const A = window.AR;
-  const $ = A.$, $$ = A.$$, rp = A.rp, gr = A.gr, esc = A.esc, ICON = A.ICON;
+  const $ = A.$, $$ = A.$$, rp = A.rp, gr = A.gr, esc = A.esc, ICON = A.ICON, getBadges = A.getBadges, hasBadge = A.hasBadge;
 
   const PAGES = {};
   window.PAGES = PAGES;
@@ -946,18 +968,16 @@
       q: "",
       collection: new Set(),
       gender: new Set(),
-      aroma: new Set(),
       stockOnly: false,
       sort: "rekomendasi"
     };
     const pCol = A.param("collection"); if (pCol) state.collection.add(pCol);
     const pg = A.param("gender"); if (pg) state.gender.add(pg);
-    const pa = A.param("aroma"); if (pa) state.aroma.add(pa);
     if (A.param("promo")) state.collection.add("promo");
 
     const all = A.products();
     const countBy = (key, val) => all.filter((p) => p[key] === val).length;
-    const countByCollection = (badgeKey) => all.filter((p) => p.badge === badgeKey).length;
+    const countByCollection = (badgeKey) => all.filter((p) => hasBadge(p, badgeKey)).length;
 
     const optHTML = (group, val, n, label) =>
       '<label class="fopt"><input type="checkbox" data-group="' + group + '" value="' + esc(val) + '"' +
@@ -971,14 +991,11 @@
       '<button class="closebtn filters__close" id="fClose" aria-label="Tutup filter">' + ICON.close + "</button></div>" +
       '<div class="fgroup"><div class="fgroup__h">Cari</div>' +
       '<div class="searchbox">' + ICON.search +
-      '<input class="input" id="fSearch" type="search" placeholder="Nama atau aroma..." aria-label="Cari parfum"></div></div>' +
+      '<input class="input" id="fSearch" type="search" placeholder="Cari nama atau brand..." aria-label="Cari parfum"></div></div>' +
       '<div class="fgroup"><div class="fgroup__h">Koleksi Pilihan</div>' +
       (window.COLLECTION_LIST || []).map((c) => optHTML("collection", c.key, countByCollection(c.key), c.name)).join("") + "</div>" +
       '<div class="fgroup"><div class="fgroup__h">Untuk</div>' +
       (window.GENDER_LIST || []).map((g) => optHTML("gender", g, countBy("gender", g))).join("") + "</div>" +
-      '<div class="fgroup"><div class="fgroup__h">Keluarga Aroma</div>' +
-      '<div class="fgroup__scroll">' +
-      (window.AROMA_LIST || []).map((a) => optHTML("aroma", a, countBy("aroma", a))).join("") + "</div></div>" +
       '<div class="fgroup"><div class="fgroup__h">Ketersediaan</div>' +
       '<label class="fopt"><input type="checkbox" id="fStock"><span class="fbox">' + ICON.check + "</span>" +
       '<span class="fopt__txt">Sembunyikan yang sold out</span></label></div>' +
@@ -991,22 +1008,21 @@
     function filtered() {
       const q = state.q.trim().toLowerCase();
       let out = all.filter((p) => {
-        if (state.collection.size && !state.collection.has(p.badge)) return false;
+        if (state.collection.size && !Array.from(state.collection).some((c) => hasBadge(p, c))) return false;
         if (state.gender.size && !state.gender.has(p.gender)) return false;
-        if (state.aroma.size && !state.aroma.has(p.aroma)) return false;
         if (state.stockOnly && !p.sizes.some((s) => s.stock)) return false;
         if (q) {
-          const hay = (p.name + " " + p.brand + " " + p.aroma + " " + p.gender + " " + p.desc).toLowerCase();
+          const hay = (p.name + " " + p.brand + " " + p.gender + " " + p.desc).toLowerCase();
           if (hay.indexOf(q) === -1) return false;
         }
         return true;
       });
 
-      const low = (p) => Math.min.apply(null, p.sizes.map((s) => A.priceOf(s)));
+      const low = (p) => Math.min.apply(null, p.sizes.map((s) => A.priceOf(s, p)));
       if (state.sort === "murah") out.sort((a, b) => low(a) - low(b));
       else if (state.sort === "mahal") out.sort((a, b) => low(b) - low(a));
       else if (state.sort === "nama") out.sort((a, b) => a.name.localeCompare(b.name, "id"));
-      else out.sort((a, b) => ((a.badge === "promo" || a.badge === "best" || a.badge === "viral") ? -1 : 0) - ((b.badge === "promo" || b.badge === "best" || b.badge === "viral") ? -1 : 0));
+      else out.sort((a, b) => ((hasBadge(a, "promo") || hasBadge(a, "best") || hasBadge(a, "viral")) ? -1 : 0) - ((hasBadge(b, "promo") || hasBadge(b, "best") || hasBadge(b, "viral")) ? -1 : 0));
       return out;
     }
 
@@ -1016,7 +1032,6 @@
       const chips = [];
       state.collection.forEach((v) => chips.push({ g: "collection", v: colMap[v] || v, raw: v }));
       state.gender.forEach((v) => chips.push({ g: "gender", v: v, raw: v }));
-      state.aroma.forEach((v) => chips.push({ g: "aroma", v: v, raw: v }));
       if (state.stockOnly) chips.push({ g: "stock", v: "Hanya tersedia" });
       if (state.q.trim()) chips.push({ g: "q", v: '"' + state.q.trim() + '"' });
 
@@ -1046,7 +1061,7 @@
     }
 
     function resetAll() {
-      state.q = ""; state.collection.clear(); state.gender.clear(); state.aroma.clear(); state.stockOnly = false;
+      state.q = ""; state.collection.clear(); state.gender.clear(); state.stockOnly = false;
       $$("#filters input[type=checkbox]").forEach((c) => (c.checked = false));
       const s = $("#fSearch"); if (s) s.value = "";
       const s2 = $("#mSearch"); if (s2) s2.value = "";
@@ -1112,7 +1127,7 @@
   /* ============ OLFACTORY ACCORDS (FRAGRANTICA STYLE) ============ */
   function autoAccords(p) {
     if (p.accords && p.accords.length) return p.accords;
-    const txt = ((p.notes ? [p.notes.top, p.notes.middle, p.notes.base].join(" ") : "") + " " + (p.aroma || "") + " " + (p.desc || "")).toLowerCase();
+    const txt = ((p.notes ? [p.notes.top, p.notes.middle, p.notes.base].join(" ") : "") + " " + (p.desc || "")).toLowerCase();
     const rules = [
       { key: "woody", kw: ["oud", "kayu", "cendana", "cedarwood", "driftwood", "woody"], score: 95 },
       { key: "citrus", kw: ["jeruk", "bergamot", "pomelo", "grapefruit", "lemon", "lime", "citrus"], score: 85 },
@@ -1145,27 +1160,27 @@
       return (
         '<div class="accord-row">' +
         '<div class="accord-bar" style="width:' + pct + '%;background:' + cfg.bg + ';color:' + cfg.color + '">' +
-        '<span class="accord-bar__name">' + esc(a.name) + "</span>" +
-        "</div></div>"
+        '<span class="accord-name">' + esc(a.name) + '</span>' +
+        '</div>' +
+        '</div>'
       );
     }).join("");
 
     return (
-      '<div class="accords-box">' +
-      '<div class="accords-box__header">' +
-      '<h3 class="accords-box__title">Main Accords</h3>' +
-      '<span class="accords-box__hint">Karakter Olfactory</span>' +
-      "</div>" +
-      '<div class="accords-box__list">' + rows + "</div>" +
-      "</div>"
+      '<div class="pdp__accords">' +
+      '<div class="pdp__accords-head">' +
+      '<span class="pdp__accords-title">Main Accords</span>' +
+      '</div>' +
+      '<div class="accord-bars">' + rows + '</div>' +
+      '</div>'
     );
   }
 
-  /* ============ DETAIL PRODUK ============ */
+  /* ============ PRODUK DETAIL ============ */
   PAGES.produk = function () {
-    const root = $("#pdpRoot");
     const id = A.param("id");
     const p = id ? A.findProduct(id) : null;
+    const root = $("#pdpRoot");
 
     if (!p) {
       root.innerHTML =
@@ -1177,66 +1192,62 @@
     }
     document.title = p.name + " - " + CONFIG.brand + " " + CONFIG.brandSuffix;
 
-    // ukuran terpilih: ukuran tersedia pertama
-    let sel = p.sizes.find((s) => s.stock) || p.sizes[0];
+    let curMl = (p.sizes.find((s) => s.stock) || p.sizes[0] || { ml: 50 }).ml;
     let qty = 1;
+
+    function curSize() {
+      return p.sizes.find((s) => s.ml === curMl) || p.sizes[0];
+    }
 
     function sizesHTML() {
       return p.sizes.map((s) => {
-        const grUnit = s.gr || s.ml;
-        const on = (s.ml === sel.ml);
-        const price = A.priceOf(s);
-        const isPromo = (s.promoPrice != null && s.promoPrice < s.grosir);
+        const sel = s.ml === curMl;
+        const oos = !s.stock;
+        const grLabel = (s.gr || s.ml) + " gr";
         return (
-          '<button class="size' + (on ? " is-on" : "") + (s.stock ? "" : " is-out") + '"' +
-          ' data-ml="' + s.ml + '"' + (s.stock ? "" : " disabled") +
-          ' aria-pressed="' + (on ? "true" : "false") + '">' +
-          '<div><div class="size__ml">' + grUnit + "<small> gr</small></div>" +
-          '<div class="size__st"><span class="status status--' + (s.stock ? "in" : "out") + '">' +
-          (s.stock ? "Tersedia" : "Sold out") + "</span></div></div>" +
-          '<div class="size__right"><div class="size__price">' + rp(price) + "</div>" +
-          (isPromo ?
-            '<div class="size__promo"><span class="size__promo-strike">' + rp(s.grosir) + '</span><span class="size__promo-badge">PROMO</span></div>' :
-            '<div class="size__alt">Grosir</div>'
-          ) +
-          "</div>" +
+          '<button class="sizebtn' + (sel ? " is-active" : "") + (oos ? " is-oos" : "") + '"' +
+          ' data-ml="' + s.ml + '"' + (oos ? " disabled" : "") + ">" +
+          '<span class="sizebtn__ml">' + grLabel + "</span>" +
+          '<span class="sizebtn__pr">' + rp(A.priceOf(s, p)) + "</span>" +
+          (oos ? '<span class="sizebtn__tag">Habis</span>' : "") +
           "</button>"
         );
       }).join("");
     }
 
     function priceboxHTML() {
-      const grUnit = sel.gr || sel.ml;
-      const price = A.priceOf(sel);
-      const isPromo = (sel.promoPrice != null && sel.promoPrice < sel.grosir);
-      const diff = isPromo ? (sel.grosir - sel.promoPrice) : 0;
-      const pct = isPromo ? Math.round((diff / sel.grosir) * 100) : 0;
+      const s = curSize();
+      const pr = A.priceOf(s, p);
+      const oos = !s.stock;
       const st = A.grosirStatus();
+      const hasPromo = hasBadge(p, "promo") && s && s.promoPrice != null && s.promoPrice < s.grosir;
+
+      const priceDisplay = hasPromo ?
+        '<div class="pricebox__row">' +
+        '<span class="pricebox__val--strike">' + rp(s.grosir) + '</span>' +
+        '<span class="pricebox__val">' + rp(pr) + '</span>' +
+        '<span class="pricebox__discount-tag">Hemat ' + Math.round(((s.grosir - s.promoPrice) / s.grosir) * 100) + '%</span>' +
+        '</div>' :
+        '<div class="pricebox__val">' + rp(pr) + '</div>';
 
       return (
-        '<div class="pricebox__row">' +
-        "<div>" +
-        '<div class="pricebox__lbl">' + (isPromo ? "Harga Promo Grosir" : "Harga Grosir") + " - " + grUnit + " gr</div>" +
-        '<div class="pricebox__price-group">' +
-        '<div class="pricebox__val">' + rp(price) + "</div>" +
-        (isPromo ? '<div class="pricebox__strike">' + rp(sel.grosir) + "</div>" : "") +
+        '<div class="pricebox__top">' +
+        '<div class="pricebox__label">Harga Grosir <b>' + (s.gr || s.ml) + ' gr</b></div>' +
+        priceDisplay +
         "</div>" +
-        "</div>" +
-        (isPromo ? '<span class="pricebox__save-badge">Hemat ' + rp(diff) + ' (' + pct + '%)</span>' :
-          (p.badge === "promo" ? '<span class="chip chip--promo">Harga Promo</span>' : "")
-        ) +
-        "</div>" +
-        '<div class="pricebox__actions">' +
+        '<div class="pricebox__cta">' +
         '<div class="stepper">' +
         '<button id="qDec" aria-label="Kurangi jumlah">' + ICON.minus + "</button>" +
         '<span id="qVal">' + qty + "</span>" +
         '<button id="qInc" aria-label="Tambah jumlah">' + ICON.plus + "</button>" +
         "</div>" +
-        '<button class="btn btn--gold" id="addBtn"' + (sel.stock ? "" : " disabled") + ">" +
-        (sel.stock ? "Tambah ke Keranjang" : "Stok Habis") + "</button>" +
-        '<a class="btn btn--wa" id="waBtn" href="#" target="_blank" rel="noopener">' +
-        ICON.wa.replace("<svg", '<svg class="btn__ico"') + "Tanya Admin</a>" +
+        '<button class="btn btn--primary" id="addBtn"' + (oos ? " disabled" : "") + ">" +
+        ICON.bag.replace("<svg", '<svg class="btn__ico"') +
+        (oos ? "Stok Habis" : "Tambah ke Keranjang") +
+        "</button>" +
         "</div>" +
+        '<a class="btn btn--wa btn--block" id="waBtn" href="#" target="_blank" rel="noopener">' +
+        ICON.wa.replace("<svg", '<svg class="btn__ico"') + "Tanya Admin</a>" +
         '<div class="pricebox__note">' + ICON.info +
         "<span>Harga grosir langsung. Akumulasi total belanja minimal <b>" + gr(st.min) + "</b>" +
         (st.pernah ? " (pembelian lanjutan)" : " untuk pembelian pertama") +
@@ -1245,7 +1256,9 @@
       );
     }
 
-    const colObj = (window.COLLECTION_LIST || []).find((c) => c.key === p.badge) || { name: p.aroma || "Grosir" };
+    const badges = getBadges(p);
+    const primaryBadge = badges[0] || "";
+    const colObj = (window.COLLECTION_LIST || []).find((c) => c.key === primaryBadge) || { name: "Katalog Grosir", key: "" };
 
     root.innerHTML =
       '<div class="wrap">' +
@@ -1255,7 +1268,7 @@
       "<span>Kembali ke Katalog</span>" +
       "</a>" +
       '<div class="pdp__topbar-cat">' +
-      "<span>Koleksi: " + esc(colObj.name) + "</span>" +
+      (colObj.key ? '<a href="katalog.html?collection=' + encodeURIComponent(colObj.key) + '">Koleksi: ' + esc(colObj.name) + '</a>' : '<span>Koleksi Grosir</span>') +
       "</div>" +
       "</div>" +
       '<div class="pdp">' +
@@ -1273,10 +1286,11 @@
       '<h1 class="pdp__title">' + esc(p.name) + "</h1>" +
       '<div class="pdp__meta">' +
       '<span class="chip">' + esc(p.gender) + "</span>" +
-      '<span class="chip">' + esc(p.aroma) + "</span>" +
-      (p.badge === "promo" ? '<span class="chip chip--promo">Promo</span>' : "") +
-      (p.badge === "best" ? '<span class="chip">Best Seller</span>' : "") +
-      (p.badge === "new" ? '<span class="chip">Rilis Baru</span>' : "") +
+      badges.map((b) => {
+        const col = (window.COLLECTION_LIST || []).find((c) => c.key === b);
+        const name = col ? col.name : b;
+        return '<span class="chip' + (b === 'promo' ? ' chip--promo' : '') + '">' + esc(name) + '</span>';
+      }).join("") +
       "</div>" +
       '<p class="pdp__desc">' + esc(p.desc) + "</p>" +
 
@@ -1311,9 +1325,9 @@
       "</div>" +
       '<section class="related"><div class="wrap">' +
       '<div class="sec-head"><div class="sec-head__text">' +
-      '<div class="eyebrow"><span class="eyebrow__num">Lainnya</span></div>' +
-      '<h2 class="sec-title">Aroma ' + esc(p.aroma) + " lain yang mungkin cocok</h2>" +
-      '</div><a class="sec-head__link" href="katalog.html?aroma=' + encodeURIComponent(p.aroma) + '">Lihat semua</a></div>' +
+      '<div class="eyebrow"><span class="eyebrow__num">Rekomendasi</span></div>' +
+      '<h2 class="sec-title">Koleksi parfum ' + esc(p.gender) + " lainnya</h2>" +
+      '</div><a class="sec-head__link" href="katalog.html?gender=' + encodeURIComponent(p.gender) + '">Lihat semua</a></div>' +
       '<div class="grid-4" id="relGrid"></div>' +
       "</div></section>";
 
@@ -1327,7 +1341,7 @@
     }
 
     function relGrid() {
-      const rel = A.products().filter((x) => x.id !== p.id && (x.aroma === p.aroma || x.gender === p.gender)).slice(0, 4);
+      const rel = A.products().filter((x) => x.id !== p.id && (x.gender === p.gender || badges.some((b) => hasBadge(x, b)))).slice(0, 4);
       $("#relGrid").innerHTML = rel.map((x) => A.productCardHTML(x)).join("");
     }
     relGrid();
@@ -1340,7 +1354,8 @@
 
     function bindPrice() {
       const wa = $("#waBtn");
-      const grUnit = sel.gr || sel.ml;
+      const s = curSize();
+      const grUnit = s.gr || s.ml;
       if (wa) {
         const txt = "Halo " + CONFIG.brand + ", saya mau tanya " + p.name + " ukuran " + grUnit + " gr (harga grosir).";
         wa.href = "https://wa.me/" + CONFIG.whatsapp + "?text=" + encodeURIComponent(txt);
@@ -1350,7 +1365,7 @@
       if (dec) dec.addEventListener("click", () => { qty = Math.max(1, qty - 1); val.textContent = qty; });
       const add = $("#addBtn");
       if (add) add.addEventListener("click", () => {
-        A.Cart.add(p.id, sel.ml, qty);
+        A.Cart.add(p.id, s.ml, qty);
         A.toast(p.name + " (" + grUnit + " gr) ditambahkan", "ok");
         A.openDrawer();
         qty = 1;
@@ -1360,9 +1375,9 @@
     }
 
     $("#sizes").addEventListener("click", (e) => {
-      const b = e.target.closest(".size");
+      const b = e.target.closest(".sizebtn, .size");
       if (!b || b.disabled) return;
-      sel = p.sizes.find((s) => s.ml === Number(b.dataset.ml));
+      curMl = Number(b.dataset.ml);
       repaint();
     });
 
@@ -1503,7 +1518,7 @@
         '<div class="flexrow" style="justify-content:space-between;align-items:flex-start">' +
         "<div>" +
         '<a class="citem__name" href="produk.html?id=' + encodeURIComponent(r.product.id) + '">' + esc(r.product.name) + "</a>" +
-        '<div class="citem__sub">' + esc(r.product.brand) + " - " + grUnit + " gr - " + esc(r.product.aroma) + "</div>" +
+        '<div class="citem__sub">' + esc(r.product.brand) + " • " + grUnit + " gr • " + esc(r.product.gender) + "</div>" +
         "</div>" +
         '<span class="status status--in">Tersedia</span>' +
         "</div>" +
@@ -1599,7 +1614,7 @@
       const list = A.products();
       const habis = list.reduce((s, p) => s + p.sizes.filter((x) => !x.stock).length, 0);
       const variants = list.reduce((s, p) => s + p.sizes.length, 0);
-      const aromas = new Set(list.map((p) => p.aroma)).size;
+      const totalCollections = (window.COLLECTION_LIST || []).length;
 
       $("#adBody").innerHTML =
         '<div class="flexrow mb-24" style="justify-content:space-between">' +
@@ -1610,7 +1625,7 @@
         '<div class="kpis">' +
         kpi("Total produk", list.length, "Katalog aktif") +
         kpi("Total varian", variants, "Semua ukuran") +
-        kpi("Kategori aroma", aromas, "Aroma tersedia") +
+        kpi("Koleksi aktif", totalCollections, "Kategori katalog") +
         kpi("Varian sold out", habis, habis ? "Perlu restock" : "Semua aman", habis > 0) +
         "</div>" +
         '<div class="panel"><div class="panel__head"><div class="panel__title">Stok perlu perhatian</div></div>' +
@@ -1658,27 +1673,33 @@
         "<div><h1 style=\"font-size:30px\">Produk &amp; Stok</h1>" +
         '<p class="muted small" style="margin-top:6px">' + list.length +
         " produk. Kelola katalog, stok, dan produk promo grosir.</p></div>" +
-        '<div class="flexrow"><button class="btn btn--gold btn--sm" id="adAdd">+ Tambah Produk</button></div>' +
+        '<div class="flexrow" style="gap:10px">' +
+        '<button class="btn btn--ghost btn--sm" id="adCsv"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>Impor CSV Massal</button>' +
+        '<button class="btn btn--gold btn--sm" id="adAdd">+ Tambah Produk</button>' +
+        '</div>' +
         "</div>" +
         '<div class="panel"><div class="tablewrap"><table class="tbl"><thead><tr>' +
-        "<th>Produk</th><th>Kategori</th><th>Ukuran &amp; Harga Grosir</th><th>Stok</th><th></th>" +
+        "<th>Produk</th><th>Target &amp; Tag</th><th>Ukuran &amp; Harga Grosir</th><th>Stok</th><th></th>" +
         "</tr></thead><tbody>" +
         list.map((p) => {
-          let bTag = "";
-          if (p.badge === "promo") bTag = '<span class="pill" style="background:#B83A2E;color:#fff;font-size:10px;padding:2px 7px;font-weight:700">PROMO</span> ';
-          else if (p.badge === "viral") bTag = '<span class="pill" style="background:#7C3AED;color:#fff;font-size:10px;padding:2px 7px;font-weight:700">VIRAL</span> ';
-          else if (p.badge === "best") bTag = '<span class="pill" style="background:#111;color:#F5C400;font-size:10px;padding:2px 7px">BEST</span> ';
-          else if (p.badge === "new") bTag = '<span class="pill" style="background:#F7EEDF;color:#8A6428;font-size:10px;padding:2px 7px">BARU</span> ';
-          else if (p.badge === "selection") bTag = '<span class="pill" style="background:#1C2421;color:#E8B961;font-size:10px;padding:2px 7px">SELECTION</span> ';
+          const bList = getBadges(p);
+          const tagPills = bList.map((b) => {
+            if (b === "promo") return '<span class="pill" style="background:#B83A2E;color:#fff;font-size:10px;padding:2px 7px;font-weight:700">PROMO</span>';
+            if (b === "viral") return '<span class="pill" style="background:#7C3AED;color:#fff;font-size:10px;padding:2px 7px;font-weight:700">VIRAL</span>';
+            if (b === "best") return '<span class="pill" style="background:#111;color:#F5C400;font-size:10px;padding:2px 7px">BEST</span>';
+            if (b === "new") return '<span class="pill" style="background:#F7EEDF;color:#8A6428;font-size:10px;padding:2px 7px">BARU</span>';
+            if (b === "selection") return '<span class="pill" style="background:#1C2421;color:#E8B961;font-size:10px;padding:2px 7px">SELECTION</span>';
+            return '<span class="pill pill--grey" style="font-size:10px;padding:2px 7px">' + esc(b) + '</span>';
+          }).join(" ");
 
           return (
             "<tr>" +
             '<td><div class="flexrow" style="gap:12px;flex-wrap:nowrap">' +
             '<span style="width:30px;flex:none">' + A.renderBottle(p) + "</span>" +
-            '<span>' + bTag + '<span class="tbl__name">' + esc(p.name) + '</span><br><span class="tbl__sub">' + esc(p.brand) + "</span></span>" +
+            '<span><span class="tbl__name">' + esc(p.name) + '</span><br><span class="tbl__sub">' + esc(p.brand) + "</span></span>" +
             "</div></td>" +
-            '<td class="small">' + esc(p.gender) + '<br><span class="tbl__sub">' + esc(p.aroma) + "</span></td>" +
-            '<td class="small">' + p.sizes.map((s) => (s.gr || s.ml) + " gr - " + rp(A.priceOf(s))).join("<br>") + "</td>" +
+            '<td class="small">' + esc(p.gender) + '<br><div style="margin-top:4px;display:flex;flex-wrap:wrap;gap:4px">' + (tagPills || '<span class="tbl__sub">Reguler</span>') + "</div></td>" +
+            '<td class="small">' + p.sizes.map((s) => (s.gr || s.ml) + " gr - " + rp(A.priceOf(s, p))).join("<br>") + "</td>" +
             "<td>" + p.sizes.map((s) =>
               '<span class="pill ' + (s.stock ? "pill--ok" : "pill--grey") + '" style="margin:0 4px 4px 0">' + (s.gr || s.ml) + " gr</span>"
             ).join("") + "</td>" +
@@ -1694,6 +1715,8 @@
 
       $$("[data-edit]").forEach((b) => b.addEventListener("click", () => openEdit(b.dataset.edit)));
       $("#adAdd").addEventListener("click", openAdd);
+      const csvBtn = $("#adCsv");
+      if (csvBtn) csvBtn.addEventListener("click", openCsvImport);
       $$("[data-del]").forEach((b) => b.addEventListener("click", () => openDeleteConfirm(b.dataset.del)));
     }
 
@@ -1739,7 +1762,45 @@
         '<button class="btn btn--ghost btn--sm" data-close>Batal</button>' +
         '<button class="btn btn--sm" id="delConfirmBtn" style="background:#E53E3E;color:#fff;border-color:#E53E3E;padding:8px 16px;font-weight:600">Hapus Produk</button>' +
         '</div>' +
-        "</div></div>"
+        "</div></div>" +
+        '<div class="modal" id="csvModal" role="dialog" aria-modal="true" aria-label="Impor Produk Massal CSV">' +
+        '<div class="modal__bg" data-close></div><div class="modal__card" style="max-width:680px">' +
+        '<div class="modal__head"><h3 style="font-size:20px">Impor Produk Massal (CSV)</h3>' +
+        '<button class="closebtn" data-close aria-label="Tutup">' + ICON.close + '</button></div>' +
+        '<div class="modal__body">' +
+        '<div class="csv-guide">' +
+        '<div class="csv-guide__h">Panduan Format Kolom File CSV:</div>' +
+        '<p class="csv-guide__p">Gunakan baris header berikut persis: <code>name,brand,gender,tags,top,middle,base,desc,sizes</code></p>' +
+        '<ul class="csv-guide__list">' +
+        '<li><b>gender</b>: Pria, Wanita, atau Unisex</li>' +
+        '<li><b>tags</b>: Dipisahkan titik-koma, contoh: <code>viral;promo</code> atau <code>best</code></li>' +
+        '<li><b>sizes</b>: Format <code>gram:grosir:promo</code> dipisahkan titik-koma. Contoh: <code>35:28000;50:38000:32000;100:70000:60000</code></li>' +
+        '</ul>' +
+        '<button type="button" class="btn btn--ghost btn--sm" id="csvDownloadTemplate" style="margin-top:10px">' +
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>Unduh Template CSV' +
+        '</button>' +
+        '</div>' +
+        '<label class="csv-dropzone" for="csvFileInput" id="csvDropzone">' +
+        '<input type="file" id="csvFileInput" accept=".csv,text/csv">' +
+        '<svg class="csv-dropzone__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>' +
+        '<span class="csv-dropzone__title">Klik atau seret file CSV ke sini</span>' +
+        '<span class="csv-dropzone__sub">File teks CSV berpemisah koma (.csv)</span>' +
+        '</label>' +
+        '<div id="csvPreviewWrap" style="display:none;margin-top:16px">' +
+        '<div class="flexrow mb-12" style="justify-content:space-between">' +
+        '<strong id="csvCountLabel" style="font-size:13px;color:var(--espresso)">0 produk terdeteksi</strong>' +
+        '<span class="pill pill--ok">Siap Diimpor</span>' +
+        '</div>' +
+        '<div class="csv-preview"><table class="tbl"><thead><tr>' +
+        '<th>Nama</th><th>Brand</th><th>Gender</th><th>Tags</th><th>Ukuran</th>' +
+        '</tr></thead><tbody id="csvPreviewTbody"></tbody></table></div>' +
+        '</div>' +
+        '</div>' +
+        '<div class="modal__foot">' +
+        '<button class="btn btn--ghost btn--sm" data-close>Batal</button>' +
+        '<button class="btn btn--gold btn--sm" id="csvCommitBtn" disabled>Proses &amp; Simpan ke Katalog</button>' +
+        '</div>' +
+        '</div></div>'
       );
     }
 
@@ -1764,12 +1825,58 @@
       };
     }
 
+    function renderTagPicker(prefix, selectedBadges) {
+      selectedBadges = selectedBadges || [];
+      const list = [
+        { key: "viral", name: "Viral", cls: "tag-chip--viral" },
+        { key: "new", name: "New Arrival", cls: "tag-chip--new" },
+        { key: "best", name: "Best Seller", cls: "tag-chip--best" },
+        { key: "selection", name: "Selection", cls: "tag-chip--selection" },
+        { key: "promo", name: "Promo (Harga Spesial)", cls: "tag-chip--promo" }
+      ];
+      return (
+        '<div class="field">' +
+        '<label class="label">Badge / Tag Koleksi &amp; Promo <span style="font-weight:400;color:var(--muted)">(Bisa pilih lebih dari satu)</span></label>' +
+        '<div class="tag-picker" id="' + prefix + 'TagPicker">' +
+        list.map((t) => {
+          const isChecked = selectedBadges.includes(t.key);
+          return (
+            '<label class="tag-chip ' + (t.cls || "") + '">' +
+            '<input type="checkbox" name="' + prefix + 'Tags" value="' + t.key + '"' + (isChecked ? " checked" : "") + '>' +
+            '<span class="tag-chip__text">' + t.name + "</span>" +
+            "</label>"
+          );
+        }).join("") +
+        "</div></div>"
+      );
+    }
+
+    function getSelectedTags(prefix) {
+      const boxes = $$('input[name="' + prefix + 'Tags"]:checked');
+      return Array.from(boxes).map((b) => b.value);
+    }
+
+    function bindPromoToggle(prefix, containerId) {
+      const cont = $("#" + containerId);
+      const promoCheckbox = $('input[name="' + prefix + 'Tags"][value="promo"]');
+      if (!cont || !promoCheckbox) return;
+      const updateClass = () => {
+        if (promoCheckbox.checked) {
+          cont.classList.add("has-promo");
+        } else {
+          cont.classList.remove("has-promo");
+        }
+      };
+      promoCheckbox.addEventListener("change", updateClass);
+      updateClass();
+    }
+
     function sizeEditHTML(grVal, grosir, stock, promoPrice) {
       return (
         '<div class="sizeedit">' +
         '<div class="sizeedit__ml"><div class="sizeedit__lbl">Ukuran (gr)</div><input class="input" type="number" min="1" placeholder="gr" data-k="ml" value="' + (grVal !== undefined && grVal !== null ? grVal : "") + '"></div>' +
         '<div><div class="sizeedit__lbl">Harga Normal (Rp)</div><input class="input" type="number" min="0" step="1000" data-k="grosir" value="' + (grosir !== undefined && grosir !== null ? grosir : "") + '"></div>' +
-        '<div><div class="sizeedit__lbl">Harga Promo (Rp)</div><input class="input" type="number" min="0" step="1000" data-k="promo" placeholder="Opsional" value="' + (promoPrice !== undefined && promoPrice !== null ? promoPrice : "") + '"></div>' +
+        '<div class="sizeedit__promo"><div class="sizeedit__lbl">Harga Promo (Rp)</div><input class="input" type="number" min="0" step="1000" data-k="promo" placeholder="Wajib jika promo" value="' + (promoPrice !== undefined && promoPrice !== null ? promoPrice : "") + '"></div>' +
         '<div><div class="sizeedit__lbl">Tersedia</div><label class="switch"><input type="checkbox" data-k="stock"' + (stock ? " checked" : "") + '><span class="switch__track"></span></label></div>' +
         '<div><button type="button" class="sizeedit__del" data-act="del-size" title="Hapus ukuran">' + ICON.trash + '</button></div>' +
         '</div>'
@@ -1816,9 +1923,9 @@
       $("#pmSave").textContent = "Tambah Produk";
       $("#pmBody").innerHTML = uploadField() +
         '<div class="form-2"><div class="field"><label class="label" for="paName">Nama Produk</label><input class="input" id="paName" required placeholder="Contoh: Vanilla Sunset"></div><div class="field"><label class="label" for="paBrand">Brand</label><input class="input" id="paBrand" value="Grosir Parfum Eropa"></div></div>' +
-        '<div class="form-2"><div class="field"><label class="label" for="paGender">Gender</label><select class="select" id="paGender"><option>Pria</option><option>Wanita</option><option>Unisex</option></select></div><div class="field"><label class="label" for="paAroma">Aroma</label><input class="input" list="aromaList" id="paAroma" placeholder="Floral"><datalist id="aromaList">' + (window.AROMA_LIST || []).map(a => '<option value="' + a + '">').join("") + '</datalist></div></div>' +
-        '<div class="field"><label class="label" for="paBadge">Badge Koleksi / Promo</label><select class="select" id="paBadge"><option value="">None (Standar)</option><option value="viral">Viral</option><option value="new">New Arrival</option><option value="best">Best Seller</option><option value="selection">Selection</option><option value="promo">Promo (Harga Spesial)</option></select></div>' +
-        '<div class="field"><label class="label" for="paDesc">Deskripsi</label><textarea class="textarea" id="paDesc" rows="3" placeholder="Deskripsi aroma dan karakter parfum..."></textarea></div>' +
+        '<div class="field"><label class="label" for="paGender">Target Pengguna</label><select class="select" id="paGender"><option>Pria</option><option>Wanita</option><option>Unisex</option></select></div>' +
+        renderTagPicker("pa", []) +
+        '<div class="field"><label class="label" for="paDesc">Deskripsi</label><textarea class="textarea" id="paDesc" rows="3" placeholder="Deskripsi karakter parfum dan aromatik..."></textarea></div>' +
         '<div class="form-3"><div class="field"><label class="label" for="paTop">Top Notes</label><input class="input" id="paTop" placeholder="Bergamot"></div><div class="field"><label class="label" for="paMid">Middle Notes</label><input class="input" id="paMid" placeholder="Rose"></div><div class="field"><label class="label" for="paBase">Base Notes</label><input class="input" id="paBase" placeholder="Musk"></div></div>' +
         '<div class="field">' +
         '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">' +
@@ -1837,13 +1944,13 @@
 
       prepareModal(modal);
       bindSizeActions("paSizesContainer", "paAddSize");
+      bindPromoToggle("pa", "paSizesContainer");
 
       const autoBtn = $("#paAutoAccords");
       if (autoBtn) {
         autoBtn.onclick = () => {
           const dummy = {
             notes: { top: $("#paTop").value, middle: $("#paMid").value, base: $("#paBase").value },
-            aroma: $("#paAroma").value,
             desc: $("#paDesc").value
           };
           const gen = autoAccords(dummy);
@@ -1858,6 +1965,10 @@
           A.toast("Nama produk wajib diisi", "warn");
           return;
         }
+
+        const tags = getSelectedTags("pa");
+        const isPromoActive = tags.includes("promo");
+
         const newSizes = [];
         $$("#paSizesContainer .sizeedit").forEach((row) => {
           const inpMl = row.querySelector('[data-k="ml"]');
@@ -1870,18 +1981,19 @@
             const promoVal = Number(inpPromo ? inpPromo.value : 0);
             const sizeObj = {
               ml: mlVal,
+              gr: mlVal,
               price: grosirPrice,
               grosir: grosirPrice,
               stock: inpStock ? inpStock.checked : true
             };
-            if (promoVal > 0 && promoVal < grosirPrice) {
+            if (isPromoActive && promoVal > 0 && promoVal < grosirPrice) {
               sizeObj.promoPrice = promoVal;
             }
             newSizes.push(sizeObj);
           }
         });
         if (!newSizes.length) {
-          newSizes.push({ ml: 50, price: 35000, grosir: 35000, stock: true });
+          newSizes.push({ ml: 50, gr: 50, price: 35000, grosir: 35000, stock: true });
         }
 
         const customAccords = parseAccordsInput($("#paAccords").value);
@@ -1891,8 +2003,8 @@
           name: name,
           brand: $("#paBrand").value.trim() || "Grosir Parfum Eropa",
           gender: $("#paGender").value,
-          aroma: $("#paAroma").value.trim() || "Floral",
-          badge: $("#paBadge").value || "",
+          badges: tags,
+          badge: tags[0] || "",
           desc: $("#paDesc").value.trim() || "Parfum grosir dengan bibit berkualitas tahan lama.",
           colors: ["#D4A900", "#FAF7F2"],
           notes: {
@@ -1923,28 +2035,15 @@
       $("#pmSave").textContent = "Simpan Perubahan";
       $("#pmTitle").textContent = "Ubah: " + p.name;
       const curAccords = (p.accords || autoAccords(p)).map((a) => a.name + ": " + a.score).join(", ");
+      const curBadges = getBadges(p);
 
       $("#pmBody").innerHTML = uploadField() +
         '<div class="field"><label class="label" for="pmName">Nama produk</label>' +
         '<input class="input" id="pmName" value="' + esc(p.name) + '"></div>' +
-        '<div class="form-2">' +
-        '<div class="field"><label class="label" for="pmGender">Untuk</label>' +
+        '<div class="field"><label class="label" for="pmGender">Target Pengguna</label>' +
         '<select class="select" id="pmGender">' + (window.GENDER_LIST || []).map((g) =>
           '<option' + (g === p.gender ? " selected" : "") + ">" + g + "</option>").join("") + "</select></div>" +
-        '<div class="field"><label class="label" for="pmAroma">Keluarga aroma</label>' +
-        '<input class="input" list="aromaList" id="pmAroma" value="' + esc(p.aroma) + '">' +
-        '<datalist id="aromaList">' + (window.AROMA_LIST || []).map((a) =>
-          '<option value="' + a + '">').join("") + "</datalist></div>" +
-        "</div>" +
-        '<div class="field"><label class="label" for="pmBadge">Badge Koleksi / Promo</label>' +
-        '<select class="select" id="pmBadge">' +
-        '<option value=""' + (!p.badge ? " selected" : "") + '>None (Standar)</option>' +
-        '<option value="viral"' + (p.badge === "viral" ? " selected" : "") + '>Viral</option>' +
-        '<option value="new"' + (p.badge === "new" ? " selected" : "") + '>New Arrival</option>' +
-        '<option value="best"' + (p.badge === "best" ? " selected" : "") + '>Best Seller</option>' +
-        '<option value="selection"' + (p.badge === "selection" ? " selected" : "") + '>Selection</option>' +
-        '<option value="promo"' + (p.badge === "promo" ? " selected" : "") + '>Promo (Harga Spesial)</option>' +
-        '</select></div>' +
+        renderTagPicker("pm", curBadges) +
         '<div class="form-3"><div class="field"><label class="label" for="pmTop">Top Notes</label><input class="input" id="pmTop" value="' + esc(p.notes ? p.notes.top : "") + '"></div><div class="field"><label class="label" for="pmMid">Middle Notes</label><input class="input" id="pmMid" value="' + esc(p.notes ? p.notes.middle : "") + '"></div><div class="field"><label class="label" for="pmBase">Base Notes</label><input class="input" id="pmBase" value="' + esc(p.notes ? p.notes.base : "") + '"></div></div>' +
         '<div class="field">' +
         '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">' +
@@ -1963,13 +2062,13 @@
 
       prepareModal(modal);
       bindSizeActions("pmSizesContainer", "pmAddSize");
+      bindPromoToggle("pm", "pmSizesContainer");
 
       const autoBtn = $("#pmAutoAccords");
       if (autoBtn) {
         autoBtn.onclick = () => {
           const dummy = {
             notes: { top: $("#pmTop").value, middle: $("#pmMid").value, base: $("#pmBase").value },
-            aroma: $("#pmAroma").value,
             desc: p.desc
           };
           const gen = autoAccords(dummy);
@@ -1979,6 +2078,9 @@
       }
 
       $("#pmSave").onclick = () => {
+        const tags = getSelectedTags("pm");
+        const isPromoActive = tags.includes("promo");
+
         const newSizes = [];
         $$("#pmSizesContainer .sizeedit").forEach((row) => {
           const inpMl = row.querySelector('[data-k="ml"]');
@@ -1991,11 +2093,12 @@
             const promoVal = Number(inpPromo ? inpPromo.value : 0);
             const sizeObj = {
               ml: mlVal,
+              gr: mlVal,
               price: grosirPrice,
               grosir: grosirPrice,
               stock: inpStock ? inpStock.checked : true
             };
-            if (promoVal > 0 && promoVal < grosirPrice) {
+            if (isPromoActive && promoVal > 0 && promoVal < grosirPrice) {
               sizeObj.promoPrice = promoVal;
             }
             newSizes.push(sizeObj);
@@ -2014,8 +2117,8 @@
         over.patch[p.id] = Object.assign({}, over.patch[p.id] || {}, {
           name: $("#pmName").value.trim() || p.name,
           gender: $("#pmGender").value,
-          aroma: $("#pmAroma").value,
-          badge: $("#pmBadge").value || "",
+          badges: tags,
+          badge: tags[0] || "",
           notes: {
             top: $("#pmTop") ? $("#pmTop").value : (p.notes ? p.notes.top : ""),
             middle: $("#pmMid") ? $("#pmMid").value : (p.notes ? p.notes.middle : ""),
@@ -2029,6 +2132,196 @@
         A.toast("Perubahan tersimpan", "ok");
         viewProduk();
       };
+    }
+
+    function openCsvImport() {
+      const modal = $("#csvModal");
+      if (!modal) return;
+      modal.classList.add("is-open");
+      $$("[data-close]", modal).forEach((b) => (b.onclick = () => modal.classList.remove("is-open")));
+
+      const fileInput = $("#csvFileInput", modal);
+      const dropzone = $("#csvDropzone", modal);
+      const previewWrap = $("#csvPreviewWrap", modal);
+      const previewTbody = $("#csvPreviewTbody", modal);
+      const countLabel = $("#csvCountLabel", modal);
+      const commitBtn = $("#csvCommitBtn", modal);
+      const downloadBtn = $("#csvDownloadTemplate", modal);
+
+      let parsedProds = [];
+
+      if (fileInput) fileInput.value = "";
+      if (previewWrap) previewWrap.style.display = "none";
+      if (commitBtn) commitBtn.disabled = true;
+
+      if (downloadBtn) {
+        downloadBtn.onclick = () => {
+          const csvHeader = "name,brand,gender,tags,top,middle,base,desc,sizes\r\n";
+          const csvRows = [
+            '"Vanilla Sublime","Grosir Parfum Eropa","Wanita","best;promo","Vanilla, Bergamot","Rose, Jasmine","Musk, Amber","Racikan aroma vanilla lembut nan manis tahan lama.","35:28000;50:38000:32000;100:70000:60000"',
+            '"Ocean Blue Wave","Grosir Parfum Eropa","Pria","viral","Sea Salt, Grapefruit","Sage, Lavender","Woody, Cedarwood","Aroma kesegaran laut yang maskulin dan sporty.","35:25000;50:35000;100:65000"',
+            '"Amber Royale Elite","Grosir Parfum Eropa","Unisex","selection","Cardamom, Saffron","Oud Wood, Rose","Patchouli, Amber","Wangi mewah oriental dengan daya tahan tinggi.","50:45000;100:85000"'
+          ].join("\r\n");
+          const blob = new Blob([csvHeader + csvRows], { type: "text/csv;charset=utf-8;" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = "template_produk_grosir.csv";
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          A.toast("Template CSV berhasil diunduh", "ok");
+        };
+      }
+
+      function handleFile(file) {
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          const text = ev.target.result;
+          parsedProds = parseCSVProducts(text);
+          if (!parsedProds.length) {
+            A.toast("Tidak ada data produk valid dalam file CSV", "warn");
+            if (previewWrap) previewWrap.style.display = "none";
+            if (commitBtn) commitBtn.disabled = true;
+            return;
+          }
+
+          if (countLabel) countLabel.textContent = parsedProds.length + " produk siap diimpor";
+          if (previewTbody) {
+            previewTbody.innerHTML = parsedProds.slice(0, 10).map((p) => {
+              const tagStr = (p.badges || []).join(", ") || "-";
+              const szStr = (p.sizes || []).map((s) => (s.gr || s.ml) + "gr (" + rp(s.grosir) + (s.promoPrice ? " -> " + rp(s.promoPrice) : "") + ")").join(", ");
+              return "<tr><td><b>" + esc(p.name) + "</b></td><td>" + esc(p.brand) + "</td><td>" + esc(p.gender) + "</td><td>" + esc(tagStr) + "</td><td class=\"small\">" + esc(szStr) + "</td></tr>";
+            }).join("") + (parsedProds.length > 10 ? '<tr><td colspan="5" class="small muted" style="text-align:center">... dan ' + (parsedProds.length - 10) + ' produk lainnya</td></tr>' : "");
+          }
+          if (previewWrap) previewWrap.style.display = "block";
+          if (commitBtn) commitBtn.disabled = false;
+        };
+        reader.readAsText(file);
+      }
+
+      if (fileInput) {
+        fileInput.onchange = () => {
+          if (fileInput.files && fileInput.files[0]) handleFile(fileInput.files[0]);
+        };
+      }
+
+      if (dropzone) {
+        dropzone.ondragover = (e) => { e.preventDefault(); dropzone.style.borderColor = "var(--gold)"; };
+        dropzone.ondragleave = () => { dropzone.style.borderColor = ""; };
+        dropzone.ondrop = (e) => {
+          e.preventDefault();
+          dropzone.style.borderColor = "";
+          if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
+            handleFile(e.dataTransfer.files[0]);
+          }
+        };
+      }
+
+      if (commitBtn) {
+        commitBtn.onclick = () => {
+          if (!parsedProds.length) return;
+          const over = A.getOverride();
+          over.added = over.added || [];
+          parsedProds.forEach((p) => over.added.push(p));
+          A.saveOverride(over);
+          modal.classList.remove("is-open");
+          A.toast(parsedProds.length + " produk berhasil diimpor ke katalog!", "ok");
+          viewProduk();
+        };
+      }
+    }
+
+    function parseCSVProducts(text) {
+      const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+      if (lines.length < 2) return [];
+
+      const parseRow = (line) => {
+        const row = [];
+        let inQuotes = false;
+        let cur = "";
+        for (let i = 0; i < line.length; i++) {
+          const c = line[i];
+          if (c === '"') {
+            if (inQuotes && line[i + 1] === '"') {
+              cur += '"';
+              i++;
+            } else {
+              inQuotes = !inQuotes;
+            }
+          } else if (c === ',' && !inQuotes) {
+            row.push(cur.trim());
+            cur = "";
+          } else {
+            cur += c;
+          }
+        }
+        row.push(cur.trim());
+        return row;
+      };
+
+      const headers = parseRow(lines[0]).map((h) => h.toLowerCase().replace(/[^a-z0-9]/g, ""));
+      const out = [];
+
+      for (let i = 1; i < lines.length; i++) {
+        const vals = parseRow(lines[i]);
+        if (vals.length < 2) continue;
+        const row = {};
+        headers.forEach((h, idx) => { row[h] = vals[idx] !== undefined ? vals[idx] : ""; });
+        const name = row.name || row.namaproduk || row.nama;
+        if (!name) continue;
+
+        const tags = (row.tags || row.tag || row.badge || "").split(";").map((t) => t.trim().toLowerCase()).filter(Boolean);
+        const hasPromoTag = tags.includes("promo");
+
+        const rawSizes = (row.sizes || row.ukuran || "").split(";").map((s) => s.trim()).filter(Boolean);
+        const parsedSizes = [];
+        rawSizes.forEach((str) => {
+          const parts = str.split(":").map((p) => Number(p.trim()) || 0);
+          const grVal = parts[0] || 50;
+          const grosirVal = parts[1] || 35000;
+          const promoVal = parts[2] || 0;
+          const sObj = {
+            ml: grVal,
+            gr: grVal,
+            price: grosirVal,
+            grosir: grosirVal,
+            stock: true
+          };
+          if (hasPromoTag && promoVal > 0 && promoVal < grosirVal) {
+            sObj.promoPrice = promoVal;
+          }
+          parsedSizes.push(sObj);
+        });
+
+        if (!parsedSizes.length) {
+          parsedSizes.push({ ml: 50, gr: 50, price: 35000, grosir: 35000, stock: true });
+        }
+
+        const notes = {
+          top: row.top || "Bergamot, Citrus",
+          middle: row.middle || row.mid || "Jasmine, Floral",
+          base: row.base || "Musk, Amber"
+        };
+
+        const prod = {
+          id: "csv-" + Date.now() + "-" + i,
+          name: name,
+          brand: row.brand || "Grosir Parfum Eropa",
+          gender: ["Pria", "Wanita", "Unisex"].find((g) => g.toLowerCase() === (row.gender || "").toLowerCase()) || "Unisex",
+          badges: tags,
+          badge: tags[0] || "",
+          desc: row.desc || row.deskripsi || "Parfum grosir bibit murni berkualitas tinggi.",
+          colors: ["#D4A900", "#FAF7F2"],
+          notes: notes,
+          sizes: parsedSizes
+        };
+        prod.accords = autoAccords(prod);
+        out.push(prod);
+      }
+      return out;
     }
   };
 })();

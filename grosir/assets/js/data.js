@@ -4,7 +4,7 @@
    grosir     = harga grosir normal (per botol)
    promoPrice = harga diskon promo khusus (jika ada harga coret)
    accords    = karakter olfactory utama (Fragrantica style)
-   badge      = "viral" | "new" | "best" | "selection" | "promo" | null
+   badges     = array of tags: ["viral", "new", "best", "selection", "promo"]
    =========================================================== */
 
 const ACCORD_COLORS = {
@@ -43,8 +43,7 @@ const PRODUCTS = [
     name: "Sahara Oud",
     brand: "Grosir Parfum Eropa Signature",
     gender: "Pria",
-    aroma: "Woody",
-    badge: "best",
+    badges: ["best", "selection"],
     desc: "Oud hangat yang dibuat tidak berat. Cocok untuk acara malam, rapat penting, atau saat kamu ingin dikenang lewat wangi.",
     notes: { top: "Safron, Lada Hitam", middle: "Mawar Taif, Cendana", base: "Oud, Amber, Musk" },
     accords: [
@@ -67,8 +66,7 @@ const PRODUCTS = [
     name: "Melati Senja",
     brand: "Grosir Parfum Eropa Signature",
     gender: "Wanita",
-    aroma: "Floral",
-    badge: "best",
+    badges: ["best"],
     desc: "Melati yang mekar pelan menjelang magrib. Lembut, bersih, dan tidak menusuk - aman dipakai setiap hari.",
     notes: { top: "Bergamot, Pir", middle: "Melati, Ylang-Ylang", base: "Musk Putih, Kayu Cedar" },
     accords: [
@@ -90,8 +88,7 @@ const PRODUCTS = [
     name: "Kopi Karamel",
     brand: "Grosir Parfum Eropa Kitchen",
     gender: "Unisex",
-    aroma: "Gourmand",
-    badge: "viral",
+    badges: ["viral", "best"],
     desc: "Espresso yang ditumpuk karamel dan sedikit garam laut. Manisnya pas, tidak bikin enek.",
     notes: { top: "Kopi Sangrai, Jeruk Mandarin", middle: "Karamel, Hazelnut", base: "Tonka, Vanila, Musk" },
     accords: [
@@ -113,8 +110,7 @@ const PRODUCTS = [
     name: "Laut Pagi",
     brand: "Grosir Parfum Eropa Daily",
     gender: "Pria",
-    aroma: "Fresh",
-    badge: "viral",
+    badges: ["viral"],
     desc: "Aroma udara asin jam enam pagi. Ringan, bersih, dan menyegarkan untuk iklim tropis yang panas.",
     notes: { top: "Jeruk Nipis, Daun Mint", middle: "Nota Laut, Lavender", base: "Kayu Driftwood, Musk" },
     accords: [
@@ -136,8 +132,7 @@ const PRODUCTS = [
     name: "Amber Rindu",
     brand: "Grosir Parfum Eropa Signature",
     gender: "Unisex",
-    aroma: "Oriental",
-    badge: "selection",
+    badges: ["selection"],
     desc: "Amber resin yang hangat dengan sentuhan rempah manis. Wangi pelukan di ruangan ber-AC.",
     notes: { top: "Kapulaga, Kayu Manis", middle: "Amber, Labdanum", base: "Benzoin, Vanila, Patchouli" },
     accords: [
@@ -159,8 +154,7 @@ const PRODUCTS = [
     name: "Peach Ceria",
     brand: "Grosir Parfum Eropa Daily",
     gender: "Wanita",
-    aroma: "Fruity",
-    badge: "new",
+    badges: ["new"],
     desc: "Persik matang dan sedikit yoghurt. Riang, muda, dan ramah dipakai ke kampus atau kantor.",
     notes: { top: "Persik, Leci", middle: "Bunga Jeruk, Freesia", base: "Musk, Kayu Putih Lembut" },
     accords: [
@@ -182,8 +176,7 @@ const PRODUCTS = [
     name: "Cendana Malam",
     brand: "Grosir Parfum Eropa Signature",
     gender: "Pria",
-    aroma: "Woody",
-    badge: "selection",
+    badges: ["selection"],
     desc: "Cendana kering dengan asap tipis. Tenang, dewasa, dan tahan lama di kain.",
     notes: { top: "Juniper, Pala", middle: "Cendana, Vetiver", base: "Cedarwood, Kulit, Musk" },
     accords: [
@@ -205,8 +198,7 @@ const PRODUCTS = [
     name: "Vanila Sutra",
     brand: "Grosir Parfum Eropa Kitchen",
     gender: "Wanita",
-    aroma: "Gourmand",
-    badge: "new",
+    badges: ["new", "selection"],
     desc: "Vanila Madagaskar yang halus seperti kain sutra, ditutup almond panggang tipis.",
     notes: { top: "Almond, Bergamot", middle: "Vanila Bourbon, Heliotrope", base: "Tonka, Sandalwood" },
     accords: [
@@ -228,8 +220,7 @@ const PRODUCTS = [
     name: "Jeruk Bali",
     brand: "Grosir Parfum Eropa Daily",
     gender: "Unisex",
-    aroma: "Fresh",
-    badge: "promo",
+    badges: ["promo", "viral"],
     desc: "Pomelo yang baru dikupas. Segar, sedikit pahit di awal, lalu manis dan bersih.",
     notes: { top: "Pomelo, Grapefruit", middle: "Neroli, Daun Teh", base: "Musk Bersih, Vetiver" },
     accords: [
@@ -251,8 +242,7 @@ const PRODUCTS = [
     name: "Mawar Embun",
     brand: "Grosir Parfum Eropa Signature",
     gender: "Wanita",
-    aroma: "Floral",
-    badge: "promo",
+    badges: ["promo"],
     desc: "Mawar yang masih basah embun pagi. Anggun tanpa terasa tua.",
     notes: { top: "Lychee, Blackcurrant", middle: "Mawar Damask, Peony", base: "Musk, Amber Lembut" },
     accords: [
@@ -274,8 +264,7 @@ const PRODUCTS = [
     name: "Kayu Hujan",
     brand: "Grosir Parfum Eropa Daily",
     gender: "Pria",
-    aroma: "Woody",
-    badge: "selection",
+    badges: ["selection"],
     desc: "Bau tanah dan kayu sesaat setelah hujan reda. Netral, maskulin, mudah disukai siapa saja.",
     notes: { top: "Nota Petrichor, Bergamot", middle: "Vetiver, Geranium", base: "Cedarwood, Patchouli" },
     accords: [
@@ -297,8 +286,7 @@ const PRODUCTS = [
     name: "Musk Awan",
     brand: "Grosir Parfum Eropa Daily",
     gender: "Unisex",
-    aroma: "Oriental",
-    badge: "promo",
+    badges: ["promo", "new"],
     desc: "Musk bersih seperti handuk yang baru dijemur. Aman untuk kulit sensitif dan ruangan tertutup.",
     notes: { top: "Aldehid, Pir", middle: "Iris, Musk Putih", base: "Cashmeran, Amber Bening" },
     accords: [
@@ -317,8 +305,6 @@ const PRODUCTS = [
   }
 ];
 
-/* Daftar filter turunan (dipakai halaman katalog) */
-const AROMA_LIST  = ["Floral", "Woody", "Fresh", "Oriental", "Gourmand", "Fruity"];
 const GENDER_LIST = ["Pria", "Wanita", "Unisex"];
 
 const COLLECTION_LIST = [
@@ -331,6 +317,5 @@ const COLLECTION_LIST = [
 
 window.ACCORD_COLORS = ACCORD_COLORS;
 window.PRODUCTS = PRODUCTS;
-window.AROMA_LIST = AROMA_LIST;
 window.GENDER_LIST = GENDER_LIST;
 window.COLLECTION_LIST = COLLECTION_LIST;
