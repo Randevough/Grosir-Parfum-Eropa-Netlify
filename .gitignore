@@ -5,3 +5,4 @@ node_modules/
 *.rar
 *.zip
 .agents/
+.agent/
