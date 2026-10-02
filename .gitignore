@@ -1,8 +1,14 @@
 .DS_Store
 Thumbs.db
 node_modules/
+dist/
+dist-ssr/
+*.tsbuildinfo
+*.local
 *.log
 *.rar
 *.zip
 .agents/
 .agent/
+
+.vscode/
