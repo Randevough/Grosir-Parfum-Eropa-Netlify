@@ -590,3 +590,19 @@ input[type=checkbox]:focus-visible,input[type=radio]:focus-visible { outline-off
 .review-initial { display:grid; place-items:center; width:36px; height:36px; flex-shrink:0; border-radius:50%; background:var(--color-accent); color:var(--color-ink); font-weight:650; }
 .review-role { display:block; color:var(--color-muted); font-size:12px; font-weight:400; margin-top:2px; }
 @media(min-width:900px) { .landing-page .testimonial-grid { grid-template-columns:repeat(3,minmax(0,1fr)); } .landing-page .testimonial-card,.landing-page .testimonial-card:first-child,.landing-page .testimonial-card:not(:first-child) { padding:32px; } }
+
+.site-footer { background:#191a17; color:#fafaf7; border:0; padding-block:52px 20px; }
+.site-footer .brand-mark { color:var(--color-ink); }
+.site-footer .footer-top { grid-template-columns:1.3fr .7fr 1fr; gap:48px; }
+.site-footer .footer-top p { color:#c5c7bc; font-size:14px; line-height:1.7; max-width:30ch; }
+.site-footer .footer-links { gap:0; }
+.footer-label { color:#c5c7bc; font-size:12px; font-weight:500; margin-bottom:8px; }
+.footer-contact h2 { font-size:20px; line-height:1.4; letter-spacing:-.02em; max-width:23ch; margin-bottom:18px; }
+.footer-contact .btn { color:var(--color-ink); font-size:14px; min-height:48px; }
+.footer-contact .btn:hover { text-decoration:none; }
+.footer-phone { display:flex; align-items:center; min-height:44px; color:#c5c7bc; font-size:14px; margin-top:8px; font-variant-numeric:tabular-nums; }
+.footer-phone:hover,.footer-bottom a:hover { text-decoration:underline; }
+.site-footer .footer-bottom { border-color:#404239; color:#c5c7bc; margin-top:36px; align-items:center; padding-top:16px; }
+.footer-bottom a { min-height:44px; display:inline-flex; align-items:center; }
+.site-footer :focus-visible { outline-color:var(--color-accent); }
+@media(max-width:899px) { .site-footer .footer-top,#main:has(.landing-page)+.site-footer .footer-top { grid-template-columns:1fr; gap:28px; } .footer-contact { grid-row:2; } }
