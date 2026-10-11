@@ -580,3 +580,13 @@ input[type=checkbox]:focus-visible,input[type=radio]:focus-visible { outline-off
 .purchase-link:active { color:var(--color-muted); }
 @media(min-width:900px) { .purchase-details { grid-template-columns:1fr 1fr; gap:56px; } .purchase-minimum { padding:32px; } }
 @media(max-width:479px) { .purchase-minimum { padding:24px; } .purchase-minimum dl { gap:16px; } .purchase-minimum dl>div+div { padding-left:16px; } .purchase-minimum dt { max-width:12ch; } }
+
+.landing-page .testimonial-section { background:#f2f2ec; border:0; }
+.landing-page .testimonial-grid { display:grid; grid-template-columns:1fr; gap:24px; align-items:stretch; }
+.landing-page .testimonial-card,.landing-page .testimonial-card:first-child,.landing-page .testimonial-card:not(:first-child) { grid-row:auto; align-self:stretch; display:flex; flex-direction:column; justify-content:flex-start; gap:0; padding:28px; border:0; border-radius:16px; background:var(--color-surface); }
+.testimonial-stars { display:flex; gap:4px; color:#9b7600; }
+.landing-page .testimonial-card blockquote,.landing-page .testimonial-card:first-child blockquote { font-size:18px; line-height:1.65; max-width:none; margin:22px 0 28px; }
+.landing-page .testimonial-card figcaption,.landing-page .testimonial-card:first-child figcaption { display:flex; align-items:center; gap:12px; margin-top:auto; font-size:13px; }
+.review-initial { display:grid; place-items:center; width:36px; height:36px; flex-shrink:0; border-radius:50%; background:var(--color-accent); color:var(--color-ink); font-weight:650; }
+.review-role { display:block; color:var(--color-muted); font-size:12px; font-weight:400; margin-top:2px; }
+@media(min-width:900px) { .landing-page .testimonial-grid { grid-template-columns:repeat(3,minmax(0,1fr)); } .landing-page .testimonial-card,.landing-page .testimonial-card:first-child,.landing-page .testimonial-card:not(:first-child) { padding:32px; } }

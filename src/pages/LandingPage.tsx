@@ -6,7 +6,7 @@ import { MagnifyingGlassIcon } from '@phosphor-icons/react/dist/csr/MagnifyingGl
 import { ChatCircleIcon } from '@phosphor-icons/react/dist/csr/ChatCircle'
 import { FlaskIcon } from '@phosphor-icons/react/dist/csr/Flask'
 import { TagIcon } from '@phosphor-icons/react/dist/csr/Tag'
-import { QuotesIcon } from '@phosphor-icons/react/dist/csr/Quotes'
+import { StarIcon } from '@phosphor-icons/react/dist/csr/Star'
 import { useCatalog } from '../store/catalog'
 import { consultationUrl } from '../data/config'
 import { COLLECTIONS, matchesCollection } from '../lib/collections'
@@ -14,6 +14,7 @@ import { useNow } from '../lib/useNow'
 import Locations from '../components/locations/Locations'
 import BusinessProcess from '../components/BusinessProcess'
 
+// Preview-only testimonials and five-star ratings; replace with verified reviews before publication.
 const sampleReviews = [
   { name: 'Rani · Pemilik toko refill', text: 'Pilihan ukuran dan harga mudah dibandingkan, jadi lebih cepat menyusun kebutuhan stok toko' },
   { name: 'Dimas · Pembeli grosir', text: 'Bisa menggabungkan beberapa aroma dalam satu cart, lalu membahas semuanya bersama admin' },
@@ -91,8 +92,8 @@ export default function LandingPage() {
       </div>
     </div></section>
     <section className="section testimonial-section" aria-labelledby="testimonials-title"><div className="wrap">
-      <div className="section-head"><div><h2 id="testimonials-title">Cerita dari pelanggan</h2><p>Pengalaman memilih aroma dan menyusun kebutuhan toko</p></div></div>
-      <div className="testimonial-grid">{(content.testimonial ? [{ name: 'Pelanggan toko', text: content.testimonial }] : sampleReviews).map(review => <figure className="testimonial-card" key={review.name}><div className="testimonial-rating"><QuotesIcon size={30} weight="duotone" aria-hidden="true" /></div><blockquote>{review.text}</blockquote><figcaption>{review.name}</figcaption></figure>)}</div>
+      <div className="section-head"><div><h2 id="testimonials-title">Cerita dari pelanggan</h2></div></div>
+      <div className="testimonial-grid">{(content.testimonial ? [{ name: 'Pelanggan toko', text: content.testimonial }] : sampleReviews).map(review => <figure className="testimonial-card" key={review.name}>{!content.testimonial && <div className="testimonial-stars" role="img" aria-label="5 dari 5 bintang">{Array.from({ length: 5 }, (_, index) => <StarIcon key={index} size={20} weight="fill" aria-hidden="true" />)}</div>}<blockquote>{review.text}</blockquote><figcaption><span className="review-initial" aria-hidden="true">{review.name.charAt(0)}</span><span><strong>{review.name.split(" · ")[0]}</strong>{review.name.includes(" · ") && <span className="review-role">{review.name.split(" · ").slice(1).join(" · ")}</span>}</span></figcaption></figure>)}</div>
     </div></section>
   </div>
 }
