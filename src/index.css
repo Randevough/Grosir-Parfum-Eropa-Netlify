@@ -559,3 +559,24 @@ input[type=checkbox]:focus-visible,input[type=radio]:focus-visible { outline-off
  .landing-page .testimonial-card:first-child { padding:24px; }
  #main:has(.landing-page)+.site-footer .footer-top { grid-template-columns:1fr; gap:28px; }
 }
+
+.purchase-details { display:grid; gap:32px; }
+.purchase-minimum { background:var(--color-accent); color:var(--color-ink); padding:28px; border-radius:16px; }
+.purchase-minimum h3,.purchase-info h3 { font-size:20px; font-weight:650; letter-spacing:-.02em; }
+.purchase-minimum dl { display:grid; grid-template-columns:1fr 1fr; margin-block:28px; }
+.purchase-minimum dl>div+div { border-left:1px solid #191a1733; padding-left:24px; }
+.purchase-minimum dt { font-size:13px; margin-bottom:10px; }
+.purchase-minimum dd { margin:0; font-size:clamp(32px,3.5vw,48px); line-height:1.15; font-weight:650; letter-spacing:-.03em; font-variant-numeric:tabular-nums; }
+.purchase-minimum dd span { font-size:18px; letter-spacing:0; }
+.purchase-minimum p { font-size:14px; }
+.purchase-minimum .purchase-note { font-size:12px; margin-top:6px; }
+.purchase-info { display:grid; align-content:center; gap:28px; }
+.purchase-info-row { display:flex; gap:18px; padding-top:24px; border-top:1px solid var(--color-line); }
+.purchase-info-row>svg { flex-shrink:0; color:var(--color-ink); }
+.purchase-info-row>svg [opacity] { fill:var(--color-accent); opacity:1; }
+.purchase-info-row p { color:var(--color-muted); font-size:15px; max-width:45ch; margin-top:10px; }
+.purchase-link { display:inline-flex; align-items:center; gap:10px; min-height:44px; margin-top:12px; font-size:14px; font-weight:650; }
+.purchase-link:hover { text-decoration:underline; }
+.purchase-link:active { color:var(--color-muted); }
+@media(min-width:900px) { .purchase-details { grid-template-columns:1fr 1fr; gap:56px; } .purchase-minimum { padding:32px; } }
+@media(max-width:479px) { .purchase-minimum { padding:24px; } .purchase-minimum dl { gap:16px; } .purchase-minimum dl>div+div { padding-left:16px; } .purchase-minimum dt { max-width:12ch; } }

@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom'
 import { ArrowRightIcon } from '@phosphor-icons/react/dist/csr/ArrowRight'
 import { ArrowUpRightIcon } from '@phosphor-icons/react/dist/csr/ArrowUpRight'
 import { MagnifyingGlassIcon } from '@phosphor-icons/react/dist/csr/MagnifyingGlass'
-import { ScalesIcon } from '@phosphor-icons/react/dist/csr/Scales'
 import { ChatCircleIcon } from '@phosphor-icons/react/dist/csr/ChatCircle'
 import { FlaskIcon } from '@phosphor-icons/react/dist/csr/Flask'
 import { TagIcon } from '@phosphor-icons/react/dist/csr/Tag'
@@ -81,9 +80,16 @@ export default function LandingPage() {
       </div>
     </section>
     <BusinessProcess />
-    <section className="section storefront-details" aria-labelledby="details-title"><div className="wrap"><div className="section-head"><div><h2 id="details-title">Yang perlu kamu tahu<br />sebelum memilih aroma</h2><p>Harga, karakter aroma, dan ketentuan pembelian grosir</p></div></div><div className="feature-list">
-      {[{ icon: TagIcon, title: 'Harga per ukuran', text: 'Harga 35 gr, 50 gr, dan 100 gr ditampilkan terpisah, pilih ukuran sesuai kebutuhan stok' }, { icon: FlaskIcon, title: 'Kenali karakter aromanya', text: 'Bandingkan main accords serta top, middle, dan base notes di detail produk' }, { icon: ScalesIcon, title: 'Minimum gabungan semua aroma', text: 'Pembelian pertama 1 kg, berikutnya 100 gr, status pembeli lama dikonfirmasi admin' }, { icon: ChatCircleIcon, title: 'Pesanan lewat WhatsApp', text: 'Susun cart tanpa membuat akun, lalu bahas stok, ongkir, dan pembayaran bersama admin' }].map(feature => <div className="feature-item" key={feature.title}><feature.icon size={28} weight="duotone" className="feature-icon" aria-hidden="true" /><div><h3>{feature.title}</h3><p>{feature.text}</p></div></div>)}
-    </div></div></section>
+    <section className="section storefront-details" aria-labelledby="details-title"><div className="wrap">
+      <div className="section-head"><h2 id="details-title">Ketentuan pembelian grosir</h2></div>
+      <div className="purchase-details">
+        <div className="purchase-minimum"><h3>Minimum pembelian</h3><dl><div><dt>Pembelian pertama</dt><dd>1.000 <span>gr</span></dd></div><div><dt>Pembelian berikutnya</dt><dd>100 <span>gr</span></dd></div></dl><p>Bisa gabung beberapa aroma</p><p className="purchase-note">Status pembeli lama dikonfirmasi admin</p></div>
+        <div className="purchase-info">
+          <div className="purchase-info-row"><TagIcon size={28} weight="duotone" aria-hidden="true" /><div><h3>Harga sesuai ukuran</h3><p>Harga 35, 50, dan 100 gr ditampilkan terpisah di setiap produk</p><Link to="/katalog" className="purchase-link">Lihat harga di katalog <ArrowRightIcon size={18} aria-hidden="true" /></Link></div></div>
+          <div className="purchase-info-row"><FlaskIcon size={28} weight="duotone" aria-hidden="true" /><div><h3>Kenali karakter aroma</h3><p>Lihat karakter dan susunan aroma di detail produk sebelum memilih stok</p></div></div>
+        </div>
+      </div>
+    </div></section>
     <section className="section testimonial-section" aria-labelledby="testimonials-title"><div className="wrap">
       <div className="section-head"><div><h2 id="testimonials-title">Cerita dari pelanggan</h2><p>Pengalaman memilih aroma dan menyusun kebutuhan toko</p></div></div>
       <div className="testimonial-grid">{(content.testimonial ? [{ name: 'Pelanggan toko', text: content.testimonial }] : sampleReviews).map(review => <figure className="testimonial-card" key={review.name}><div className="testimonial-rating"><QuotesIcon size={30} weight="duotone" aria-hidden="true" /></div><blockquote>{review.text}</blockquote><figcaption>{review.name}</figcaption></figure>)}</div>
