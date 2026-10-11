@@ -1,0 +1,32 @@
+.admin-entry { max-width:650px; margin:40px auto; display:grid; gap:24px; }
+.admin-entry h1,.admin-page h1 { font-size:clamp(32px,4vw,48px); }
+.admin-entry>p { color:var(--color-muted); }
+.admin-entry>.btn { justify-self:start; }
+.admin-demo-note { padding:16px 20px; background:var(--color-accent-soft); border-radius:8px; font-size:13px; line-height:1.7; }
+.admin-tabs { display:flex; flex-wrap:wrap; gap:12px; margin-block:30px 16px; border-bottom:1px solid var(--color-line); }
+.admin-tabs button { min-height:48px; padding:12px 22px; border-bottom:2px solid transparent; font-size:14px; }
+.admin-tabs button[aria-pressed=true] { border-color:var(--color-ink); font-weight:700; }
+.admin-feedback { font-size:14px; color:var(--color-success); margin-bottom:16px; }
+.admin-feedback:empty { display:none; }
+.admin-toolbar { display:flex; justify-content:space-between; gap:24px; align-items:end; margin-bottom:24px; }
+.admin-toolbar .field { flex:1; max-width:520px; }
+.admin-product-list { border-top:1px solid var(--color-line); }
+.admin-product-row { display:flex; justify-content:space-between; align-items:center; gap:16px; padding:18px 0; border-bottom:1px solid var(--color-line); }
+.admin-product-row strong { font-size:15px; }
+.admin-product-row p { font-size:12px; color:var(--color-muted); margin-top:5px; }
+.admin-product-actions { display:flex; gap:4px; }
+.admin-product-actions .btn { padding:12px; }
+.admin-form { max-width:860px; display:grid; gap:24px; }
+.admin-form h2 { font-size:28px; }
+.admin-form .btn { justify-self:start; }
+.admin-form-heading { display:flex; justify-content:space-between; align-items:center; gap:20px; }
+.admin-two,.admin-three { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:20px; }
+.admin-three { grid-template-columns:repeat(3,minmax(0,1fr)); }
+.admin-form fieldset { border:0; padding:0; }
+.admin-form legend { font-size:16px; font-weight:600; margin-bottom:16px; }
+.admin-checkbox { display:flex; align-items:center; gap:10px; font-size:14px; min-height:44px; }
+.admin-checkbox input { width:18px; height:18px; accent-color:var(--color-ink); }
+.admin-photo { max-width:180px; }
+.admin-photo .product-image { border-radius:8px; }
+.admin-photo .product-image strong { font-size:15px; }
+@media(max-width:700px) { .admin-entry { margin:12px auto; } .admin-two,.admin-three { grid-template-columns:1fr; } .admin-toolbar { align-items:stretch; flex-direction:column; gap:16px; } .admin-tabs { gap:0; } .admin-tabs button { padding:12px 16px; } .admin-product-row { flex-wrap:wrap; } .admin-product-actions { margin-left:auto; } }

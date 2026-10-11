@@ -1,9 +1,9 @@
-export interface ProductSize {
-  ml: number
+export interface ProductVariant {
+  id: string
+  grams: number
   price: number
-  grosir: number
-  promoPrice?: number
-  stock: boolean
+  available: boolean
+  promo?: { price: number; startsAt: string; endsAt: string }
 }
 
 export interface ProductAccord {
@@ -27,7 +27,11 @@ export interface Product {
   notes: ProductNotes
   accords: ProductAccord[]
   colors: [string, string]
-  sizes: ProductSize[]
+  variants: ProductVariant[]
+  slug: string
+  published: boolean
+  createdAt: string
+  image?: string
 }
 
 export interface CollectionItem {
@@ -75,3 +79,6 @@ export interface StoreConfig {
     pass: string
   }
 }
+
+export interface CartItem { productId: string; variantId: string; quantity: number }
+export interface Branch { id: string; name: string; region: string; address: string; hours: string; coordinates: [number, number]; demo: boolean }

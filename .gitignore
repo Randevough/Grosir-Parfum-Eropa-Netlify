@@ -3,6 +3,8 @@ Thumbs.db
 node_modules/
 dist/
 dist-ssr/
+playwright-report/
+test-results/
 *.tsbuildinfo
 *.local
 *.log
@@ -12,3 +14,14 @@ dist-ssr/
 .agent/
 
 .vscode/
+
+# Local AI instructions, planning documents, skills, and runtime state
+AGENTS.md
+AGENTS.override.md
+PRD.md
+PRODUCT.md
+DESIGN.md
+IMPLEMENTATION_PLAN.md
+PHOTO_SOURCES.md
+.codex/
+.impeccable/

@@ -1,0 +1,31 @@
+.cart-heading { margin-bottom:32px; }
+.cart-heading p { color:var(--color-muted); margin-top:12px; max-width:55ch; }
+.cart-layout { display:grid; grid-template-columns:minmax(0,1.45fr) minmax(300px,1fr); gap:48px; align-items:start; }
+.cart-list { min-width:0; }
+.cart-row { display:grid; grid-template-columns:96px minmax(0,1fr); gap:20px; padding:24px 0; border-bottom:1px solid var(--color-line); }
+.cart-row:first-child { padding-top:0; }
+.cart-row-image { border-radius:8px; padding:8px; aspect-ratio:1; }
+.cart-row-image strong,.cart-row-image span { font-size:10px; }
+.cart-row-image svg { width:18px; }
+.cart-row h2 { font-size:18px; overflow-wrap:anywhere; }
+.cart-row-meta { color:var(--color-muted); font-size:14px; margin:6px 0 14px; }
+.cart-row-controls { display:flex; flex-wrap:wrap; gap:12px 20px; align-items:center; }
+.cart-remove { display:inline-flex; gap:6px; align-items:center; min-height:44px; color:var(--color-danger); font-size:13px; }
+.cart-row-price { margin-top:14px; font-size:16px; font-weight:700; font-variant-numeric:tabular-nums; }
+.cart-summary { background:var(--color-surface); padding:28px; border-radius:12px; border:1px solid var(--color-line); }
+.cart-summary h2 { font-size:23px; }
+.cart-totals { margin:24px 0; display:grid; gap:12px; font-variant-numeric:tabular-nums; }
+.cart-totals>div { display:flex; justify-content:space-between; gap:16px; }
+.cart-totals dt { color:var(--color-muted); }
+.cart-totals dd { text-align:right; font-weight:650; }
+.cart-notice { padding:14px 16px; background:var(--color-accent-soft); border-radius:8px; font-size:13px; line-height:1.6; margin:16px 0; }
+.cart-blocked { color:var(--color-danger); }
+.cart-form { display:grid; gap:18px; margin-top:24px; }
+.cart-form fieldset { border:0; padding:0; margin:0; }
+.cart-form legend { font-weight:600; font-size:14px; margin-bottom:10px; }
+.cart-radio { display:flex; align-items:center; gap:10px; min-height:44px; font-size:14px; }
+.cart-radio input { width:18px; height:18px; accent-color:var(--color-ink); }
+.cart-fineprint { color:var(--color-muted); font-size:12px; line-height:1.7; }
+.cart-back { margin-top:24px; }
+@media(max-width:850px) { .cart-layout { grid-template-columns:1fr; gap:32px; } }
+@media(max-width:480px) { .cart-row { grid-template-columns:70px minmax(0,1fr); gap:14px; } .cart-summary { padding:20px; } }
