@@ -75,7 +75,7 @@ function ProductDetail({ product }: { product: Product }) {
           <Button disabled={!canAdd} onClick={add}><ShoppingBag aria-hidden="true" size={18} /> Tambah ke cart</Button>
         </div>
         {selected && canAdd && <p className="pdp-total">{formatGrams(selected.grams * quantity)} · Subtotal <strong>{formatPrice(price * quantity)}</strong></p>}
-        <div className="pdp-feedback" role="status" aria-live="polite" aria-atomic="true">{feedback && <><p className={feedback.success ? 'text-success' : 'text-danger'}>{feedback.success && <Check size={16} aria-hidden="true" />}{feedback.text}</p>{feedback.success && <Link to="/cart" className="text-link">Lihat cart <ArrowRight aria-hidden="true" size={16} /></Link>}</>}</div>
+        <div className="pdp-feedback" role="status" aria-live="polite" aria-atomic="true">{feedback && <><p className={feedback.success ? 'text-success' : 'text-danger'}>{feedback.success && <Check size={16} aria-hidden="true" />}{feedback.text}</p>{feedback.success && <Link to="/cart" className="text-link">Lihat cart <ArrowRight className="arrow-motion arrow-right" aria-hidden="true" size={16} /></Link>}</>}</div>
         <p className="pdp-rule">Pembelian pertama minimal total 1.000 gr; pembelian berikutnya 100 gr Bisa gabung beberapa aroma Belum memenuhi minimum? Tetap bisa konsultasi melalui WhatsApp dari cart</p>
       </div>
     </div>

@@ -50,7 +50,7 @@ export default function BusinessProcess() {
           <div className="process-visual process-message"><div className="process-message-heading"><WhatsappLogoIcon size={24} className="process-highlight-icon" aria-hidden="true" /><strong>Rangkuman pesanan</strong></div><div className="process-message-body"><span>Halo, saya ingin memesan</span>{examples.map(row => <span key={row.product.id}>{row.product.name} · {row.quantity} × {row.variant.grams} gr</span>)}<strong>Total {formatGrams(grams)}</strong></div></div>
         </li>
       </ol>
-      <div className="process-footer"><div><h3>Butuh bantuan memilih aroma?</h3></div><div className="process-controls"><a className="btn btn-primary" href={consultationUrl} target="_blank" rel="noreferrer">Konsultasi via WhatsApp <ArrowUpRightIcon size={18} aria-hidden="true" /></a></div></div>
+      <div className="process-footer"><div><h3>Butuh bantuan memilih aroma?</h3></div><div className="process-controls"><a className="btn btn-primary" href={consultationUrl} target="_blank" rel="noreferrer">Konsultasi via WhatsApp <ArrowUpRightIcon className="arrow-motion arrow-up-right" size={18} aria-hidden="true" /></a></div></div>
     </div>
   </section>
 }

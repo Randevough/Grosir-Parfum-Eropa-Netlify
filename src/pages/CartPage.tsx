@@ -64,7 +64,7 @@ export default function CartPage() {
   return <section className="wrap page-section">
     <div className="cart-heading"><h1>Cart kamu</h1><p>Gabungkan pilihan aroma dan ukuran Admin akan mengonfirmasi pesananmu melalui WhatsApp</p></div>
     {storageError && <p className="cart-notice" role="status">Browser tidak bisa menyimpan cart, pilihan saat ini tetap dapat digunakan, tetapi bisa hilang saat halaman ditutup</p>}
-    {!items.length ? <EmptyState title="Belum ada produk di cart"><p className="mb-6">Temukan aroma yang sesuai untuk stok tokomu</p><Link className="btn btn-primary" to="/katalog">Lihat katalog <ArrowUpRight aria-hidden="true" size={17} /></Link></EmptyState> : <div className="cart-layout">
+    {!items.length ? <EmptyState title="Belum ada produk di cart"><p className="mb-6">Temukan aroma yang sesuai untuk stok tokomu</p><Link className="btn btn-primary" to="/katalog">Lihat katalog <ArrowUpRight className="arrow-motion arrow-up-right" aria-hidden="true" size={17} /></Link></EmptyState> : <div className="cart-layout">
       <div className="cart-list">
         {rows.map(row => <article className="cart-row" key={`${row.productId}:${row.variantId}`}>
           {row.product ? <Link to={`/produk/${row.product.slug}`} tabIndex={-1} aria-hidden="true"><ProductImage product={row.product} className="cart-row-image" /></Link> : <div className="cart-row-image bg-surface-muted" />}
@@ -90,9 +90,9 @@ export default function CartPage() {
           <div className="cart-notice" aria-live="polite">Minimum gabungan aroma: <strong>{formatGrams(minimum)}</strong>. {belowMinimum ? <>Masih kurang <strong>{formatGrams(minimum - totalGrams)}</strong>. Kamu tetap bisa konsultasi dengan admin</> : 'Pilihanmu sudah memenuhi minimum berat'}</div>
           {blocked && <p className="cart-blocked text-sm" role="alert">Hapus atau ganti item yang tidak tersedia untuk melanjutkan</p>}
           {errors.submit && <p id="cart-submit-error" tabIndex={-1} className="cart-blocked text-sm" role="alert">{errors.submit}</p>}
-          <Button type="submit" disabled={blocked}>{belowMinimum ? 'Konsultasikan pilihan via WA' : 'Lanjut ke WhatsApp'} <ArrowUpRight aria-hidden="true" size={18} /></Button>
+          <Button type="submit" disabled={blocked}>{belowMinimum ? 'Konsultasikan pilihan via WA' : 'Lanjut ke WhatsApp'} <ArrowUpRight className="arrow-motion arrow-up-right" aria-hidden="true" size={18} /></Button>
           <p className="cart-fineprint">Rangkuman dibuka di WhatsApp Kirim pesan untuk konfirmasi stok, ongkir, dan pembayaran bersama admin</p>
-          {blocked && <a className="text-link" href={consultationUrl}>Konsultasi umum via WhatsApp <ArrowUpRight aria-hidden="true" size={16} /></a>}
+          {blocked && <a className="text-link" href={consultationUrl}>Konsultasi umum via WhatsApp <ArrowUpRight className="arrow-motion arrow-up-right" aria-hidden="true" size={16} /></a>}
         </form>
       </aside>
     </div>}

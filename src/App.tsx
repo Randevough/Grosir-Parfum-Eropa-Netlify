@@ -28,6 +28,6 @@ export default function App() {
  <Route path="/katalog.html" element={<Navigate to="/katalog" replace />} />
  <Route path="/promo.html" element={<Navigate to="/promo" replace />} />
  <Route path="/admin.html" element={<Navigate to="/admin" replace />} />
- <Route path="*" element={<section className="wrap page-section"><EmptyState title="Halaman tidak ditemukan"><p>Alamat ini belum tersedia.</p><Link to="/katalog" className="btn btn-primary mt-5">Lihat katalog</Link></EmptyState></section>} />
+ <Route path="*" element={<section className="wrap page-section"><EmptyState title="Halaman tidak ditemukan"><p>Alamat ini belum tersedia.</p><Link to="/katalog" className="btn btn-primary mt-6">Lihat katalog</Link></EmptyState></section>} />
  </Route></Routes></CartProvider></CatalogProvider></BrowserRouter>
 }

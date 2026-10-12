@@ -129,3 +129,15 @@ test('ordering process explains three steps with a consistent example and no sho
  assert.ok(!process.includes('aria-live'))
  assert.ok(renderRoute('/cart').includes('Belum ada produk di cart'))
 })
+
+test('hero scent shortcuts open nonempty catalog searches', () => {
+ const html = renderRoute('/')
+ const chips = html.slice(html.indexOf('class="hero-scent-chips"'), html.indexOf('class="hero-search-toggle"'))
+ const destinations = [...chips.matchAll(/href="([^"]+)"/g)].map(match => match[1])
+ assert.ok(destinations.length >= 2)
+ for (const destination of destinations) {
+  const results = renderRoute(destination)
+  assert.match(results, /[1-9]\d* produk ditemukan/)
+  assert.ok(!results.includes('Belum ada produk yang cocok'))
+ }
+})
