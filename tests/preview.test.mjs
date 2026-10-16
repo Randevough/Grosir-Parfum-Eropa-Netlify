@@ -21,6 +21,8 @@ import Detail from './src/pages/ProductDetailPage'
 import Cart from './src/pages/CartPage'
 import Admin from './src/pages/AdminPage'
 import SiteLayout from './src/components/layout/SiteLayout'
+import { ProductImage } from './src/components/ui'
+export function renderImage(product, compact) { return renderToStaticMarkup(React.createElement(ProductImage, {product, compact})) }
 export function renderRoute(path) {
  const pages = [['/', Landing], ['/katalog', Catalog], ['/promo', Promo], ['/produk/:slug', Detail], ['/cart', Cart], ['/admin', Admin]]
  return renderToStaticMarkup(React.createElement(MemoryRouter, {initialEntries:[path]},
@@ -31,7 +33,7 @@ export function renderRoute(path) {
 const result = buildSync({ stdin: { contents: source, resolveDir: process.cwd(), loader: 'tsx' }, bundle: true, platform: 'node', format: 'cjs', write: false, jsx: 'automatic', mainFields: ['module', 'main'], external: ['react', 'react-dom/server', 'react-router-dom', './MapPanel'], loader: { '.css': 'empty' } })
 const bundled = { exports: {} }
 new Function('require', 'module', 'exports', result.outputFiles[0].text)(createRequire(import.meta.url), bundled, bundled.exports)
-const { parseCart, resolveCart, getVariantPrice, isPromoActive, PRODUCTS, renderRoute, COLLECTIONS, matchesCollection } = bundled.exports
+const { parseCart, resolveCart, getVariantPrice, isPromoActive, PRODUCTS, renderRoute, COLLECTIONS, matchesCollection, renderImage } = bundled.exports
 
 test('promo uses inclusive start, exclusive end and ignores invalid schedules/prices', () => {
  const start = Date.parse('2026-10-01T00:00:00+07:00'), end = Date.parse('2026-11-01T00:00:00+07:00')
@@ -130,14 +132,24 @@ test('ordering process explains three steps with a consistent example and no sho
  assert.ok(renderRoute('/cart').includes('Belum ada produk di cart'))
 })
 
-test('hero scent shortcuts open nonempty catalog searches', () => {
+test('hero exposes the search form without scent shortcuts', () => {
  const html = renderRoute('/')
- const chips = html.slice(html.indexOf('class="hero-scent-chips"'), html.indexOf('class="hero-search-toggle"'))
- const destinations = [...chips.matchAll(/href="([^"]+)"/g)].map(match => match[1])
- assert.ok(destinations.length >= 2)
- for (const destination of destinations) {
-  const results = renderRoute(destination)
-  assert.match(results, /[1-9]\d* produk ditemukan/)
-  assert.ok(!results.includes('Belum ada produk yang cocok'))
- }
+ assert.ok(html.includes('id="hero-search-form"'))
+ assert.ok(html.includes('aria-label="Cari aroma"'))
+ assert.ok(!html.includes('hero-scent-chips'))
+ assert.ok(!html.includes('hero-search-toggle'))
+})
+
+
+test('catalog illustration only fills absent product photos and leaves detail fallback intact', () => {
+ const product = {...PRODUCTS[0], image: undefined}
+ const placeholder = renderImage(product, true)
+ assert.ok(placeholder.includes('alt="Ilustrasi botol parfum"'))
+ assert.ok(placeholder.includes('/images/catalog/'))
+ const actual = renderImage({...product, image: '/images/actual-product.jpg'}, true)
+ assert.ok(actual.includes('src="/images/actual-product.jpg"'))
+ assert.ok(!actual.includes('Ilustrasi botol parfum'))
+ const detail = renderImage(product, false)
+ assert.ok(!detail.includes('/images/catalog/'))
+ assert.ok(detail.includes('Foto segera ditambahkan'))
 })

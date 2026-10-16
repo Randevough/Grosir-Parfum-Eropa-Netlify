@@ -625,7 +625,8 @@ input[type=checkbox]:focus-visible,input[type=radio]:focus-visible { outline-off
 .landing-page .testimonial-section { background:#f2f2ec; border:0; }
 .landing-page .testimonial-grid { display:grid; grid-template-columns:1fr; gap:var(--space-6); align-items:stretch; }
 .landing-page .testimonial-card,.landing-page .testimonial-card:first-child,.landing-page .testimonial-card:not(:first-child) { grid-row:auto; align-self:stretch; display:flex; flex-direction:column; justify-content:flex-start; gap:0; padding:var(--space-6); border:0; border-radius:16px; background:var(--color-surface); }
-.testimonial-stars { display:flex; gap:var(--space-1); color:#9b7600; }
+.testimonial-stars { display:flex; gap:var(--space-1); color:var(--color-accent); }
+.testimonial-stars svg { stroke:var(--color-accent-focus); stroke-width:8; }
 .landing-page .testimonial-card blockquote,.landing-page .testimonial-card:first-child blockquote { font-size:var(--type-body-lg); line-height:1.65; max-width:none; margin:var(--space-6) 0 var(--space-6); }
 .landing-page .testimonial-card figcaption,.landing-page .testimonial-card:first-child figcaption { display:flex; align-items:center; gap:var(--space-3); margin-top:auto; font-size:var(--type-small); }
 .review-initial { display:grid; place-items:center; width:36px; height:36px; flex-shrink:0; border-radius:50%; background:var(--color-accent); color:var(--color-ink); font-weight:var(--weight-strong); }
@@ -805,8 +806,8 @@ a:focus-visible .arrow-motion.arrow-down-right,button:focus-visible .arrow-motio
  .landing-page .hero-media img { aspect-ratio:16/10; object-fit:cover; object-position:50% 58%; }
 }
 @media(min-width:768px) {
- .site-footer,#main:has(.landing-page)+.site-footer { padding-block:var(--space-16); }
- .site-footer .footer-top,#main:has(.landing-page)+.site-footer .footer-top { gap:var(--space-12); }
+ .site-footer,#main:has(.landing-page)+.site-footer { padding-block:var(--space-12) var(--space-6); }
+ .site-footer .footer-top,#main:has(.landing-page)+.site-footer .footer-top { gap:var(--space-8); }
 }
 @media(min-width:1024px) {
  :root { --type-display:clamp(2.9rem,4.4vw,4.1rem); }
@@ -817,7 +818,28 @@ a:focus-visible .arrow-motion.arrow-down-right,button:focus-visible .arrow-motio
  .hero-media { grid-row:1/4; }
 }
 
-.hero-mobile-consultation,.hero-wholesale-badge,.hero-scent-row { display:none; }
+/* Shared footer: compact groups with the same reading and keyboard order. */
+.site-footer,#main:has(.landing-page)+.site-footer { padding-top:var(--space-8); padding-bottom:max(var(--space-4),env(safe-area-inset-bottom,0px)); }
+.site-footer .footer-top,#main:has(.landing-page)+.site-footer .footer-top { grid-template-columns:minmax(0,1fr); gap:var(--space-8); align-items:start; }
+.site-footer .footer-top>div:first-child { grid-column:auto; }
+.site-footer .footer-top p,#main:has(.landing-page)+.site-footer .footer-top p { max-width:30ch; margin-top:var(--space-4); font-size:var(--type-small); line-height:1.65; }
+.site-footer .footer-label { font-size:var(--type-small); font-weight:var(--weight-strong); color:var(--color-footer-muted); margin-bottom:var(--space-2); }
+.site-footer .footer-links { font-size:var(--type-body); justify-items:start; }
+.site-footer .footer-links a+a { margin-top:0; }
+.site-footer .footer-contact { grid-row:auto; }
+.site-footer .footer-contact h2 { max-width:20ch; font-size:var(--type-h3); line-height:1.3; text-wrap:balance; margin-bottom:var(--space-4); }
+.site-footer .footer-contact .btn,#main:has(.landing-page)+.site-footer .footer-contact .btn { width:fit-content; max-width:100%; min-height:48px; }
+.site-footer .footer-bottom,#main:has(.landing-page)+.site-footer .footer-bottom { margin-top:var(--space-8); padding-top:var(--space-3); font-size:var(--type-caption); }
+@media(min-width:700px) {
+ .site-footer,#main:has(.landing-page)+.site-footer { padding-top:var(--space-12); }
+ .site-footer .footer-top,#main:has(.landing-page)+.site-footer .footer-top { grid-template-columns:minmax(0,1fr) minmax(0,.65fr) minmax(0,1.2fr); gap:var(--space-8); }
+}
+@media(min-width:1024px) {
+ .site-footer .footer-top,#main:has(.landing-page)+.site-footer .footer-top { grid-template-columns:minmax(0,1.1fr) minmax(0,.6fr) minmax(0,1fr); gap:var(--space-16); }
+ .site-footer .footer-bottom,#main:has(.landing-page)+.site-footer .footer-bottom { margin-top:var(--space-12); }
+}
+
+.hero-mobile-consultation,.hero-wholesale-badge { display:none; }
 @media(min-width:360px) and (max-width:767px) {
  .landing-page .hero { gap:0; padding-block:var(--space-6) var(--space-8); }
  .hero-surface { overflow-x:clip; }
@@ -828,33 +850,23 @@ a:focus-visible .arrow-motion.arrow-down-right,button:focus-visible .arrow-motio
  .hero-mobile-consultation:focus-visible { outline-color:var(--color-ink); }
  .hero-mobile-consultation:active { background:var(--color-surface-muted); }
  .hero-media { margin-inline:calc(-1 * var(--space-4)); margin-top:calc(-1 * var(--space-6)); position:relative; z-index:1; }
- .landing-page .hero-media img { width:100%; aspect-ratio:4/5; object-fit:cover; object-position:55% 60%; border-radius:0 0 var(--radius-hero) var(--radius-hero); }
+ .landing-page .hero-media img { width:100%; aspect-ratio:4/3; object-fit:cover; object-position:55% 60%; border-radius:0 0 var(--radius-hero) var(--radius-hero); }
  .hero-media .hero-wholesale-badge { display:grid; position:absolute; inset:auto var(--space-4) var(--space-4); gap:var(--space-1); padding:var(--space-3) var(--space-4); border-radius:var(--radius-control); background:var(--color-accent); color:var(--color-ink); text-align:left; }
  .hero-wholesale-badge strong { font-size:var(--type-small); font-weight:var(--weight-strong); }
  .hero-wholesale-badge span { font-size:var(--type-caption); line-height:1.4; }
- .hero-scent-row { display:flex; align-items:center; min-width:0; gap:var(--space-2); margin-top:var(--space-6); }
- .hero-scent-chips { display:flex; min-width:0; flex:1; gap:var(--space-2); overflow-x:auto; scroll-snap-type:x proximity; scrollbar-width:none; padding:var(--space-1) var(--space-4) var(--space-1) var(--space-1); mask-image:linear-gradient(to right,black calc(100% - var(--space-4)),transparent); }
- .hero-scent-chips::-webkit-scrollbar { display:none; }
- .hero-scent-chips a { display:flex; align-items:center; justify-content:center; flex-shrink:0; min-height:44px; padding-inline:var(--space-4); border:1px solid var(--color-line); border-radius:var(--radius-control); background:var(--color-surface); font-size:var(--type-small); font-weight:var(--weight-medium); scroll-snap-align:start; }
- .hero-scent-chips a:focus-visible { outline-offset:-3px; }
- .hero-scent-chips a:active { background:var(--color-accent-soft); }
- .hero-search-toggle { display:grid; place-items:center; flex-shrink:0; width:44px; height:44px; border-radius:var(--radius-control); background:var(--color-surface-muted); }
- .hero-search-toggle:active { background:var(--color-accent-soft); }
  .hero-engagement .hero-rule,.hero-engagement>.hero-consultation { display:none; }
- .hero-engagement .hero-search { display:none; }
- .hero-engagement[data-mobile-search=true] .hero-search { display:flex; margin-top:var(--space-3); border-color:var(--color-line); }
- .hero-engagement[data-mobile-search=false] { animation:none; }
+ .hero-engagement .hero-search { display:flex; margin-top:var(--space-6); border-color:var(--color-line); }
  @media(hover:hover) {
-  .hero-mobile-consultation:hover,.hero-scent-chips a:hover,.hero-search-toggle:hover { background:var(--color-accent-soft); }
+  .hero-mobile-consultation:hover { background:var(--color-accent-soft); }
  }
  @media(prefers-reduced-motion:no-preference) {
   .hero-copy { animation:none; }
-  .hero-copy h1,.hero-copy>p,.hero-mobile-consultation,.hero-wholesale-badge,.hero-scent-row { animation:hero-arrive var(--motion-entrance) var(--motion-ease) both; }
+  .hero-copy h1,.hero-copy>p,.hero-mobile-consultation,.hero-wholesale-badge { animation:hero-arrive var(--motion-entrance) var(--motion-ease) both; }
   .hero-copy>p { animation-delay:var(--motion-stagger); }
   .hero-primary { animation-delay:calc(var(--motion-stagger) * 2); }
   .hero-mobile-consultation { animation-delay:calc(var(--motion-stagger) * 3); }
   .hero-media { animation-delay:calc(var(--motion-stagger) * 4); }
   .hero-wholesale-badge { animation-delay:calc(var(--motion-stagger) * 4 + var(--motion-entrance)); }
-  .hero-scent-row { animation-delay:calc(var(--motion-stagger) * 5 + var(--motion-entrance)); }
+  .hero-engagement { animation-delay:calc(var(--motion-stagger) * 5); }
  }
 }

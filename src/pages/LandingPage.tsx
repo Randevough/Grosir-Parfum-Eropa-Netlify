@@ -35,9 +35,6 @@ export default function LandingPage() {
   const { products, content } = useCatalog()
   const now = useNow()
   const [query, setQuery] = useState('')
-  const [mobileSearchOpen, setMobileSearchOpen] = useState(false)
-  const searchInput = useRef<HTMLInputElement>(null)
-  const scentChips = ['Oud', 'Melati', 'Vanila', 'Kopi', 'Mawar', 'Citrus'].filter(scent => products.some(product => product.published && `${product.name} ${product.desc}`.toLocaleLowerCase('id').includes(scent.toLocaleLowerCase('id'))))
   const [reveal, setReveal] = useState(false)
   const collectionSection = useRef<HTMLElement>(null)
   const navigate = useNavigate()
@@ -59,12 +56,11 @@ export default function LandingPage() {
         <Link to="/katalog" className="btn btn-primary hero-primary">Lihat katalog <ArrowRightIcon className="arrow-motion arrow-right" size={18} aria-hidden="true" /></Link>
         <a href={consultationUrl} target="_blank" rel="noreferrer" className="hero-mobile-consultation btn">Konsultasi via WhatsApp <ChatCircleIcon size={18} aria-hidden="true" /></a>
         <figure className="hero-media"><img src="/images/hero_atelier.jpg" alt="Botol dan bahan parfum" width="1200" height="896" fetchPriority="high" decoding="async" /><figcaption className="hero-wholesale-badge"><strong>Mulai 1 kg</strong><span>Gabungkan aroma sesuai kebutuhan tokomu</span></figcaption></figure>
-        <div className="hero-scent-row"><nav className="hero-scent-chips" aria-label="Cari karakter aroma">{scentChips.map(scent => <Link key={scent} to={heroSearchUrl(scent)}>{scent}</Link>)}</nav><button className="hero-search-toggle" aria-label={mobileSearchOpen ? 'Tutup pencarian aroma' : 'Buka pencarian aroma'} aria-expanded={mobileSearchOpen} aria-controls="hero-search-form" onClick={() => { setMobileSearchOpen(open => !open); if (!mobileSearchOpen) requestAnimationFrame(() => searchInput.current?.focus()) }}><MagnifyingGlassIcon size={22} aria-hidden="true" /></button></div>
-        <div className="hero-engagement" data-mobile-search={mobileSearchOpen}>
+        <div className="hero-engagement">
           <p className="hero-rule">Pembelian pertama mulai total 1 kg<br />Gabungkan aroma sesuai kebutuhan tokomu</p>
           <form id="hero-search-form" className="hero-search" role="search" onSubmit={e => { e.preventDefault(); navigate(heroSearchUrl(query)) }}>
             <label htmlFor="hero-search" className="sr-only">Cari aroma di katalog</label>
-            <input ref={searchInput} id="hero-search" type="search" placeholder="Cari aroma, misalnya oud atau melati" value={query} onChange={e => setQuery(e.target.value)} />
+            <input id="hero-search" type="search" placeholder="Cari aroma, misalnya oud atau melati" value={query} onChange={e => setQuery(e.target.value)} />
             <button aria-label="Cari aroma"><MagnifyingGlassIcon size={22} weight="bold" aria-hidden="true" /></button>
           </form>
             <a href={consultationUrl} target="_blank" rel="noreferrer" className="hero-consultation">Konsultasi via WhatsApp <ChatCircleIcon size={18} aria-hidden="true" /></a>
