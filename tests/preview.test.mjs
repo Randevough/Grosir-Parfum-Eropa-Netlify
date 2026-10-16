@@ -153,3 +153,17 @@ test('catalog illustration only fills absent product photos and leaves detail fa
  assert.ok(!detail.includes('/images/catalog/'))
  assert.ok(detail.includes('Foto segera ditambahkan'))
 })
+
+test('business support sits between collections and ordering with distinct consultation topics', () => {
+ const html = renderRoute('/')
+ const start = html.indexOf('id="business-support"')
+ const end = html.indexOf('class="business-section process-section"', start)
+ assert.ok(start > html.indexOf('class="section collections-section"'))
+ assert.ok(end > start)
+ const section = html.slice(start, end)
+ const links = [...section.matchAll(/href="(https:\/\/wa\.me\/[^\"]+)"/g)].map(match => new URL(match[1].replaceAll('&amp;', '&')))
+ assert.equal(links.length, 3)
+ assert.equal(new Set(links.map(link => link.pathname)).size, 1)
+ for (const topic of ['paket usaha', 'botol dan kemasan', 'alat racik']) assert.ok(links.some(link => link.searchParams.get('text').includes(topic)))
+ for (const claim of ['food grade', '12+ jam', '150–300%', 'Tester gratis']) assert.ok(!section.includes(claim))
+})

@@ -13,6 +13,7 @@ import { COLLECTIONS, matchesCollection } from '../lib/collections'
 import { useNow } from '../lib/useNow'
 import Locations from '../components/locations/Locations'
 import BusinessProcess from '../components/BusinessProcess'
+import BusinessSupport from '../components/BusinessSupport'
 
 // Preview-only testimonials and five-star ratings; replace with verified reviews before publication.
 const sampleReviews = [
@@ -83,6 +84,7 @@ export default function LandingPage() {
         </div>
       </div>
     </section>
+    <BusinessSupport />
     <BusinessProcess />
     <section className="section storefront-details" aria-labelledby="details-title"><div className="wrap">
       <div className="section-head"><h2 id="details-title">Ketentuan pembelian grosir</h2></div>
